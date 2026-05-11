@@ -16,8 +16,6 @@ jobs:
         include:
           - os: macos-latest
             target: --mac --arm64
-          - os: macos-13
-            target: --mac --x64
           - os: windows-latest
             target: --win --x64
     runs-on: ${{ matrix.os }}
