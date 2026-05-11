@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBA Break Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="overlay">
+      <section class="overlay-shell" aria-label="Equipes NBA restantes">
+        <section id="streamer-bar" class="streamer-bar" aria-label="Mode streamer">
+          <div class="streamer-bar__meta">
+            <span>Spots restants</span>
+            <strong id="remaining-count">30</strong>
+          </div>
+
+          <section class="controls" aria-label="Actions rapides">
+            <button id="undo" class="btn btn--primary" type="button">
+              Annuler
+            </button>
+            <button id="reset" class="btn btn--danger" type="button">
+              Reset
+            </button>
+          </section>
+        </section>
+
+        <section class="board">
+          <div class="board__frame"></div>
+          <div id="teams" class="teams" aria-label="Grille des equipes restantes"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./sport.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBA Draft Break</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./draft.css" />
+  </head>
+  <body>
+    <main class="draft-app">
+      <section class="draft-shell">
+        <section class="draft-toolbar">
+          <div class="draft-toolbar__meta">
+            <span>Draft en cours</span>
+            <strong id="pick-label">Pick 1/30</strong>
+          </div>
+
+          <div class="draft-toolbar__current">
+            <span>Au tour de</span>
+            <strong id="current-player-label">Spot 1</strong>
+          </div>
+
+          <section class="draft-controls" aria-label="Actions draft">
+            <button id="undo" class="btn btn--primary" type="button">
+              Annuler
+            </button>
+            <button id="reset" class="btn btn--danger" type="button">
+              Reset
+            </button>
+          </section>
+        </section>
+
+        <section class="draft-board">
+          <div class="draft-board__frame"></div>
+          <section class="players-panel">
+            <div id="players" class="players-grid"></div>
+          </section>
+
+          <section class="teams-panel">
+            <div class="teams-panel__header">
+              <span>Equipes disponibles</span>
+              <strong id="teams-left-label">30 restantes</strong>
+            </div>
+            <div id="teams" class="teams-grid"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./sport.js"></script>
+    <script src="./draft.js"></script>
+  </body>
+</html>

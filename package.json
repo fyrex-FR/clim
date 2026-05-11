@@ -1,0 +1,80 @@
+{
+  "name": "break-overlay",
+  "version": "1.0.0",
+  "description": "NBA / NFL / UCC break overlay pour OBS (Wheel, Draft, Tier).",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.fyrex.break-overlay",
+    "productName": "Break Overlay",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "server.js",
+      "sport.js",
+      "tokens.css",
+      "admin.html",
+      "admin.css",
+      "admin.js",
+      "index.html",
+      "style.css",
+      "script.js",
+      "draft.html",
+      "draft.css",
+      "draft.js",
+      "tier.html",
+      "tier.css",
+      "tier.js",
+      "sports.json",
+      "modes.json",
+      "tier-templates.json",
+      "logo/**",
+      "logo-nfl/**",
+      "logo-ucc/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "state.json",
+        "to": "state.json"
+      },
+      {
+        "from": "draft-state.json",
+        "to": "draft-state.json"
+      },
+      {
+        "from": "tier-state.json",
+        "to": "tier-state.json"
+      },
+      {
+        "from": "active-sessions.json",
+        "to": "active-sessions.json"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "${productName} Setup ${version}.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.entertainment",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

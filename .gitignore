@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+.claude/
+
+# Archive / sauvegarde locale
+*.zip
+Archive*.zip
+
+# State persistants (utilisateurs ont leur propre etat, on ne versionne pas)
+state.json
+draft-state.json
+tier-state.json
+active-sessions.json
+sessions/
+
+# Tier-templates editable par l'utilisateur (on garde un seed dans le repo via electron-builder)
+# mais en dev local on ne veut pas commiter les modifs ad-hoc :
+# (on garde tier-templates.json versionne comme seed, donc PAS de regle ici)
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.local

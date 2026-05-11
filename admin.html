@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Break Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./admin.css" />
+  </head>
+  <body>
+    <main class="admin-app">
+      <section class="admin-shell">
+        <header class="admin-header">
+          <div class="admin-header__intro">
+            <p class="admin-header__eyebrow">Control Room</p>
+            <h1>Break Admin</h1>
+            <p class="admin-header__copy">
+              Base simple pour piloter les modes live et preparer les templates tier a l'avance.
+            </p>
+          </div>
+          <div class="admin-header__status">
+            <div class="status-card">
+              <span>Wheel</span>
+              <strong id="wheel-summary">Chargement...</strong>
+            </div>
+            <div class="status-card">
+              <span>Draft</span>
+              <strong id="draft-summary">Chargement...</strong>
+            </div>
+            <div class="status-card">
+              <span>Tier</span>
+              <strong id="tier-summary">Chargement...</strong>
+            </div>
+          </div>
+        </header>
+
+        <section class="section-head">
+          <div>
+            <p class="section-head__eyebrow">Live</p>
+            <h2>Modes Disponibles</h2>
+          </div>
+          <label class="sport-picker">
+            <span>Sport</span>
+            <select id="sport-select"></select>
+          </label>
+        </section>
+
+        <section class="mode-grid" aria-label="Modes disponibles">
+          <article class="mode-card">
+            <div class="mode-card__head">
+              <div>
+                <p class="mode-card__tag">NBA</p>
+                <h2>Wheel Random</h2>
+              </div>
+              <span id="wheel-badge" class="mode-card__badge">Chargement...</span>
+            </div>
+
+            <p class="mode-card__copy">
+              Mode roue classique pour griser les equipes qui tombent.
+            </p>
+
+            <div class="mode-card__footer">
+              <div class="mode-card__links">
+                <a class="btn btn--primary mode-link" href="./index.html?mode=streamer" target="_blank" rel="noreferrer">
+                  Streamer
+                </a>
+                <a class="btn mode-link" href="./index.html?mode=display" target="_blank" rel="noreferrer">
+                  Display
+                </a>
+                <button id="wheel-copy-display" class="btn btn--ghost mode-link" type="button">
+                  Copier OBS
+                </button>
+              </div>
+              <div class="mode-card__actions">
+                <button id="wheel-reset" class="btn btn--danger action-button" type="button">Reset</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="mode-card">
+            <div class="mode-card__head">
+              <div>
+                <p class="mode-card__tag">NBA</p>
+                <h2>Draft</h2>
+              </div>
+              <span id="draft-badge" class="mode-card__badge">Chargement...</span>
+            </div>
+
+            <p class="mode-card__copy">
+              Draft snake a 10 spots et 3 picks, avec attribution equipe par equipe.
+            </p>
+
+            <div class="mode-card__footer">
+              <div class="mode-card__links">
+                <a class="btn btn--primary mode-link" href="./draft.html?mode=streamer" target="_blank" rel="noreferrer">
+                  Streamer
+                </a>
+                <a class="btn mode-link" href="./draft.html?mode=display" target="_blank" rel="noreferrer">
+                  Display
+                </a>
+                <button id="draft-copy-display" class="btn btn--ghost mode-link" type="button">
+                  Copier OBS
+                </button>
+              </div>
+              <div class="mode-card__actions">
+                <button id="draft-reset" class="btn btn--danger action-button" type="button">Reset</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="mode-card">
+            <div class="mode-card__head">
+              <div>
+                <p class="mode-card__tag">NBA</p>
+                <h2>Tier Break</h2>
+              </div>
+              <span id="tier-badge" class="mode-card__badge">Chargement...</span>
+            </div>
+
+            <p class="mode-card__copy">
+              Tirage des spots puis tirage des tiers 3, 2 et 1 par ordre des spots.
+            </p>
+
+            <div class="mode-card__footer">
+              <div class="mode-card__links">
+                <a class="btn btn--primary mode-link" href="./tier.html?mode=streamer" target="_blank" rel="noreferrer">
+                  Streamer
+                </a>
+                <a class="btn mode-link" href="./tier.html?mode=display" target="_blank" rel="noreferrer">
+                  Display
+                </a>
+                <button id="tier-copy-display" class="btn btn--ghost mode-link" type="button">
+                  Copier OBS
+                </button>
+              </div>
+              <div class="mode-card__actions">
+                <button id="tier-reset" class="btn btn--danger action-button" type="button">Reset</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-head section-head--spaced">
+          <div>
+            <p class="section-head__eyebrow">Configuration</p>
+            <h2>Editeur Tier Templates</h2>
+          </div>
+          <p>Prepare ici les tableaux tiers reutilisables pour les tier breaks.</p>
+        </section>
+
+        <section class="future-panel">
+          <div class="template-editor">
+            <div class="template-editor__toolbar">
+              <label class="template-editor__field">
+                <span>Template</span>
+                <select id="tier-template-select"></select>
+              </label>
+              <label class="template-editor__field">
+                <span>ID</span>
+                <input id="tier-template-id" class="session-input" type="text" />
+              </label>
+              <label class="template-editor__field">
+                <span>Label</span>
+                <input id="tier-template-label" class="session-input" type="text" />
+              </label>
+              <button id="tier-template-new" class="btn action-button" type="button">Nouveau</button>
+              <button id="tier-template-duplicate" class="btn action-button" type="button">Dupliquer</button>
+              <button id="tier-template-save" class="btn action-button" type="button">Sauvegarder</button>
+              <button id="tier-template-export" class="btn btn--ghost action-button" type="button">Exporter</button>
+              <button id="tier-template-import" class="btn btn--ghost action-button" type="button">Importer</button>
+              <input id="tier-template-import-file" type="file" accept=".json,application/json" hidden />
+              <button id="tier-template-delete" class="btn btn--danger action-button" type="button">Supprimer</button>
+            </div>
+
+            <div id="tier-template-grid" class="template-grid"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./sport.js"></script>
+    <script src="./admin.js"></script>
+  </body>
+</html>

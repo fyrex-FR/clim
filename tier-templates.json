@@ -1,0 +1,58 @@
+{
+  "nba-standard": {
+    "id": "nba-standard",
+    "label": "NBA Standard",
+    "sport": "nba",
+    "tiers": {
+      "1": [
+        "boston-celtics",
+        "cleveland-cavaliers",
+        "denver-nuggets",
+        "golden-state-warriors",
+        "los-angeles-lakers",
+        "milwaukee-bucks",
+        "new-york-knicks",
+        "oklahoma-city-thunder",
+        "philadelphia-76ers",
+        "san-antonio-spurs"
+      ],
+      "2": [
+        "dallas-mavericks",
+        "houston-rockets",
+        "indiana-pacers",
+        "los-angeles-clippers",
+        "memphis-grizzlies",
+        "miami-heat",
+        "minnesota-timberwolves",
+        "orlando-magic",
+        "phoenix-suns",
+        "sacramento-kings"
+      ],
+      "3": [
+        "atlanta-hawks",
+        "brooklyn-nets",
+        "charlotte-hornets",
+        "chicago-bulls",
+        "detroit-pistons",
+        "new-orleans-pelicans",
+        "portland-trail-blazers",
+        "toronto-raptors",
+        "utah-jazz",
+        "washington-wizards"
+      ]
+    }
+  },
+  "template-1778496800897": {
+    "id": "template-1778496800897",
+    "label": "2026",
+    "sport": "nba",
+    "tiers": {
+      "1": [],
+      "2": [],
+      "3": [
+        "dallas-mavericks",
+        "charlotte-hornets"
+      ]
+    }
+  }
+}

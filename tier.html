@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBA Tier Break</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./tier.css" />
+  </head>
+  <body>
+    <main class="tier-app">
+      <section class="tier-shell">
+        <section class="tier-toolbar">
+          <div class="tier-toolbar__meta">
+            <span>Phase</span>
+            <strong id="phase-label">Chargement...</strong>
+          </div>
+
+          <div class="tier-toolbar__meta">
+            <span>Action suivante</span>
+            <strong id="next-draw-label">Chargement...</strong>
+          </div>
+
+          <label class="template-picker">
+            <span>Tableau</span>
+            <select id="template-select"></select>
+          </label>
+
+          <section class="tier-controls">
+            <button id="start-draw" class="btn btn--primary" type="button">Démarrer le tirage</button>
+            <button id="draw-next" class="btn btn--primary" type="button">Tirer</button>
+            <button id="undo" class="btn" type="button">Annuler</button>
+            <button id="export-csv" class="btn" type="button">Export CSV</button>
+            <button id="reset" class="btn btn--danger" type="button">Reset</button>
+          </section>
+        </section>
+
+        <section class="tier-board">
+          <div class="tier-board__frame"></div>
+
+          <section class="waiting-banner" aria-hidden="true">
+            <p class="waiting-banner__eyebrow">Tier Break</p>
+            <h2 class="waiting-banner__title">Le tirage va bientot commencer</h2>
+            <p class="waiting-banner__sub">Decouvrez les 3 tableaux d'equipes</p>
+          </section>
+
+          <section id="draw-stage" class="draw-stage" hidden>
+            <div class="panel-head">
+              <span id="draw-stage-meta">Tirage</span>
+              <strong id="draw-stage-label">En attente</strong>
+            </div>
+            <div class="draw-reveal">
+              <div class="draw-reveal__hub">
+                <span id="draw-wheel-hub-meta">Tier Break</span>
+                <strong id="draw-wheel-hub-label">Ready</strong>
+              </div>
+              <div id="draw-wheel" class="draw-reveal__card" data-state="idle">
+                <span class="draw-reveal__placeholder">En attente du tirage</span>
+                <div class="draw-reveal__content" hidden>
+                  <img class="draw-reveal__logo" alt="" hidden />
+                  <strong class="draw-reveal__label"></strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="spots-panel">
+            <div class="panel-head">
+              <span>Ordre des spots</span>
+              <strong id="spots-summary">0 / 10 tires</strong>
+            </div>
+            <div id="slots-grid" class="slots-grid"></div>
+          </section>
+
+          <section class="participants-panel">
+            <div class="panel-head">
+              <span>Participants</span>
+              <strong>Edition streamer</strong>
+            </div>
+            <div id="participants-list" class="participants-list"></div>
+          </section>
+
+          <section class="tiers-panel">
+            <div class="panel-head">
+              <span>Tableaux d'equipes</span>
+              <strong id="teams-summary">30 equipes dispo</strong>
+            </div>
+            <div id="tiers-grid" class="tiers-grid"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./sport.js"></script>
+    <script src="./tier.js"></script>
+  </body>
+</html>

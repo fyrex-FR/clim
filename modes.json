@@ -1,0 +1,37 @@
+{
+  "wheel": {
+    "id": "wheel",
+    "label": "Wheel Random",
+    "sport": "nba",
+    "scope": "wheel",
+    "page": "index.html",
+    "summary": "Mode roue classique pour griser les equipes qui tombent."
+  },
+  "draft": {
+    "id": "draft",
+    "label": "Draft",
+    "sport": "nba",
+    "scope": "draft",
+    "page": "draft.html",
+    "summary": "Draft snake a 10 spots et 3 picks, avec attribution equipe par equipe.",
+    "defaults": {
+      "playerCount": 10,
+      "rounds": 3,
+      "order": "snake"
+    }
+  },
+  "tier": {
+    "id": "tier",
+    "label": "Tier Break",
+    "sport": "nba",
+    "scope": "tier",
+    "page": "tier.html",
+    "summary": "Tirage des spots puis tirage tier 3, tier 2, tier 1 par ordre de spot.",
+    "defaults": {
+      "playerCount": 10,
+      "tiers": 3,
+      "order": "spot-asc",
+      "spotDraw": "random-sequential"
+    }
+  }
+}
