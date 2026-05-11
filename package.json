@@ -2,6 +2,11 @@
   "name": "break-overlay",
   "version": "1.0.0",
   "description": "NBA / NFL / UCC break overlay pour OBS (Wheel, Draft, Tier).",
+  "author": "fyrex-FR",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fyrex-FR/clim.git"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -75,6 +80,16 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "fyrex-FR",
+        "repo": "clim"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
   }
 }

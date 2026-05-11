@@ -1,6 +1,7 @@
-const { app, BrowserWindow, shell, Menu } = require("electron");
+const { app, BrowserWindow, shell, dialog, Menu } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow = null;
 let serverModule = null;
@@ -81,10 +82,65 @@ function createMainWindow() {
   });
 }
 
+// Verifie les mises a jour via GitHub Releases.
+// - Au demarrage : check + popup si update dispo.
+// - L'utilisateur accepte : download silencieux + popup pour redemarrer quand pret.
+// - En dev (non-packaged) : on ne fait rien (electron-updater plante sans signature/manifest).
+function setupAutoUpdate() {
+  if (!app.isPackaged) return;
+
+  autoUpdater.autoDownload = false; // on demande avant de download
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on("update-available", async (info) => {
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "Mise a jour disponible",
+      message: `Une nouvelle version (${info.version}) est disponible.`,
+      detail: "Voulez-vous la telecharger maintenant ? L'installation aura lieu au prochain demarrage de l'app.",
+      buttons: ["Telecharger", "Plus tard"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) {
+      autoUpdater.downloadUpdate().catch((err) => {
+        dialog.showErrorBox("Erreur de telechargement", String(err?.message || err));
+      });
+    }
+  });
+
+  autoUpdater.on("update-downloaded", async (info) => {
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "Mise a jour prete",
+      message: `La version ${info.version} est telechargee.`,
+      detail: "Redemarrer maintenant pour installer ? (sinon l'install se fera a la prochaine fermeture)",
+      buttons: ["Redemarrer maintenant", "Plus tard"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+
+  autoUpdater.on("error", (err) => {
+    // Pas de popup pour ne pas embeter l'utilisateur si GitHub est down/offline.
+    console.error("autoUpdater error:", err?.message || err);
+  });
+
+  // Check tout de suite, puis toutes les 6h tant que l'app tourne
+  autoUpdater.checkForUpdates().catch(() => {});
+  setInterval(() => {
+    autoUpdater.checkForUpdates().catch(() => {});
+  }, 6 * 60 * 60 * 1000);
+}
+
 app.whenReady().then(async () => {
   ensureStateFiles();
   await startServer();
   createMainWindow();
+  setupAutoUpdate();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
