@@ -85,7 +85,8 @@
       {
         "provider": "github",
         "owner": "fyrex-FR",
-        "repo": "clim"
+        "repo": "clim",
+        "releaseType": "release"
       }
     ]
   },
