@@ -2,6 +2,12 @@ const { app, BrowserWindow, shell, dialog, Menu } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { autoUpdater } = require("electron-updater");
+const log = require("electron-log");
+
+// Logs auto-update visibles dans ~/Library/Logs/Break Overlay/main.log (Mac)
+// ou %APPDATA%/Break Overlay/logs/main.log (Windows)
+log.transports.file.level = "info";
+autoUpdater.logger = log;
 
 let mainWindow = null;
 let serverModule = null;
@@ -120,13 +126,18 @@ function setupAutoUpdate() {
       cancelId: 1,
     });
     if (response === 0) {
-      autoUpdater.quitAndInstall();
+      try {
+        log.info("Calling quitAndInstall...");
+        autoUpdater.quitAndInstall(false, true);
+      } catch (err) {
+        log.error("quitAndInstall threw:", err);
+        dialog.showErrorBox("Erreur installation", String(err?.message || err));
+      }
     }
   });
 
   autoUpdater.on("error", (err) => {
-    // Pas de popup pour ne pas embeter l'utilisateur si GitHub est down/offline.
-    console.error("autoUpdater error:", err?.message || err);
+    log.error("autoUpdater error:", err?.message || err);
   });
 
   // Check tout de suite, puis toutes les 6h tant que l'app tourne
