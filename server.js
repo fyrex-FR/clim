@@ -11,7 +11,10 @@ const dataDir = process.env.BREAK_DATA_DIR || __dirname;
 const rootDir = staticDir; // alias pour le service des fichiers statiques
 const sessionsDir = path.join(dataDir, "sessions");
 const historyDir = path.join(dataDir, "history");
+const userLogosDir = path.join(dataDir, "logos");
+const customSportsFile = path.join(dataDir, "sports-custom.json");
 const HISTORY_MAX = 100;
+const BUILTIN_SPORT_IDS = new Set(["nba", "nfl", "ucc"]);
 const activeSessionsFile = path.join(dataDir, "active-sessions.json");
 const configFiles = {
   // Configs read-only (sports/modes embarques avec l'app)
@@ -381,7 +384,61 @@ async function readConfig(name) {
     }
   }
   const content = await fsp.readFile(configPath, "utf8");
-  return JSON.parse(content);
+  const parsed = JSON.parse(content);
+  if (name === "sports") {
+    // Merge avec les sports custom de l'utilisateur (priorite au built-in pour les IDs reserves)
+    const custom = await readCustomSports();
+    for (const [id, sport] of Object.entries(custom)) {
+      if (BUILTIN_SPORT_IDS.has(id)) continue; // protege les built-in
+      parsed[id] = sport;
+    }
+  }
+  return parsed;
+}
+
+async function readCustomSports() {
+  try {
+    const content = await fsp.readFile(customSportsFile, "utf8");
+    return JSON.parse(content) || {};
+  } catch {
+    return {};
+  }
+}
+
+async function writeCustomSports(sports) {
+  await fsp.writeFile(customSportsFile, JSON.stringify(sports, null, 2) + "\n");
+}
+
+function isValidSportId(id) {
+  return typeof id === "string" && /^[a-z0-9][a-z0-9-]{0,29}$/.test(id);
+}
+
+function sanitizeSportPayload(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const id = typeof raw.id === "string" ? raw.id.toLowerCase().trim() : "";
+  if (!isValidSportId(id)) return null;
+  if (BUILTIN_SPORT_IDS.has(id)) return null; // ne pas autoriser l'override des built-in
+  const label = typeof raw.label === "string" && raw.label.trim() ? raw.label.trim() : id.toUpperCase();
+  const teams = Array.isArray(raw.teams) ? raw.teams : [];
+  const cleanTeams = teams
+    .map((t) => {
+      if (!t || typeof t !== "object") return null;
+      const teamId = typeof t.id === "string" ? t.id.toLowerCase().trim().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") : "";
+      if (!teamId) return null;
+      const teamLabel = typeof t.label === "string" && t.label.trim() ? t.label.trim() : teamId;
+      const logo = typeof t.logo === "string" ? t.logo.trim() : "";
+      return { id: teamId, label: teamLabel, logo };
+    })
+    .filter(Boolean);
+  // dedup teams par id
+  const seen = new Set();
+  const dedup = [];
+  for (const t of cleanTeams) {
+    if (seen.has(t.id)) continue;
+    seen.add(t.id);
+    dedup.push(t);
+  }
+  return { id, label, teams: dedup };
 }
 
 async function serveFile(response, pathname) {
@@ -411,12 +468,41 @@ async function serveFile(response, pathname) {
   fs.createReadStream(filePath).pipe(response);
 }
 
-async function readRequestBody(request) {
+async function serveUserLogo(response, relativePath) {
+  // Securite : pas de "..", pas de chemins absolus
+  if (!relativePath || relativePath.includes("..") || relativePath.startsWith("/")) {
+    sendJson(response, 403, { error: "Forbidden" });
+    return;
+  }
+  const decoded = decodeURIComponent(relativePath);
+  const resolved = path.normalize(path.join(userLogosDir, decoded));
+  if (!resolved.startsWith(userLogosDir)) {
+    sendJson(response, 403, { error: "Forbidden" });
+    return;
+  }
+  try {
+    const stats = await fsp.stat(resolved);
+    if (!stats.isFile()) {
+      sendJson(response, 404, { error: "Not found" });
+      return;
+    }
+  } catch {
+    sendJson(response, 404, { error: "Not found" });
+    return;
+  }
+  const extension = path.extname(resolved).toLowerCase();
+  const contentType = contentTypes[extension] || "image/png";
+  response.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-store" });
+  fs.createReadStream(resolved).pipe(response);
+}
+
+async function readRequestBody(request, { asBuffer = false } = {}) {
   const chunks = [];
   for await (const chunk of request) {
     chunks.push(chunk);
   }
-  return Buffer.concat(chunks).toString("utf8");
+  const buf = Buffer.concat(chunks);
+  return asBuffer ? buf : buf.toString("utf8");
 }
 
 const server = http.createServer(async (request, response) => {
@@ -534,6 +620,83 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  // Cree ou met a jour un sport custom (body = { id, label, teams: [...] })
+  if (request.method === "POST" && url.pathname === "/api/config/sports") {
+    try {
+      const body = await readRequestBody(request);
+      const parsed = JSON.parse(body.toString("utf8"));
+      const clean = sanitizeSportPayload(parsed);
+      if (!clean) {
+        sendJson(response, 400, { error: "Invalid sport payload" });
+        return;
+      }
+      const custom = await readCustomSports();
+      custom[clean.id] = { label: clean.label, teams: clean.teams };
+      await writeCustomSports(custom);
+      sendJson(response, 200, { ok: true, sport: custom[clean.id] });
+    } catch (err) {
+      sendJson(response, 400, { error: String(err?.message || err) });
+    }
+    return;
+  }
+
+  // Supprime un sport custom + ses logos
+  const sportDeleteMatch = url.pathname.match(/^\/api\/config\/sports\/([a-z0-9-]+)$/);
+  if (sportDeleteMatch && request.method === "DELETE") {
+    const id = sportDeleteMatch[1];
+    if (BUILTIN_SPORT_IDS.has(id)) {
+      sendJson(response, 403, { error: "Cannot delete built-in sport" });
+      return;
+    }
+    try {
+      const custom = await readCustomSports();
+      delete custom[id];
+      await writeCustomSports(custom);
+      // supprime le dossier de logos
+      await fsp.rm(path.join(userLogosDir, id), { recursive: true, force: true }).catch(() => {});
+      sendJson(response, 200, { ok: true });
+    } catch (err) {
+      sendJson(response, 500, { error: String(err?.message || err) });
+    }
+    return;
+  }
+
+  // Upload d'un logo : POST /api/config/sports/:id/logos?filename=xxx.png  (body = bytes du fichier)
+  // Retourne { url: "./user-logos/<id>/<filename>" }
+  const sportLogoMatch = url.pathname.match(/^\/api\/config\/sports\/([a-z0-9-]+)\/logos$/);
+  if (sportLogoMatch && request.method === "POST") {
+    const id = sportLogoMatch[1];
+    if (BUILTIN_SPORT_IDS.has(id)) {
+      sendJson(response, 403, { error: "Cannot upload to built-in sport" });
+      return;
+    }
+    try {
+      const rawFilename = url.searchParams.get("filename") || "";
+      const safeFilename = rawFilename
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (!safeFilename || !/\.(png|jpg|jpeg|webp|gif|svg|bmp|tiff?|avif|heic|heif)$/i.test(safeFilename)) {
+        sendJson(response, 400, { error: `Invalid filename: "${rawFilename}" -> "${safeFilename}"` });
+        return;
+      }
+      const body = await readRequestBody(request, { asBuffer: true });
+      if (!body || body.length === 0 || body.length > 15 * 1024 * 1024) {
+        sendJson(response, 400, { error: `Invalid file (empty or > 15MB, got ${body?.length || 0} bytes)` });
+        return;
+      }
+      const sportLogoDir = path.join(userLogosDir, id);
+      await fsp.mkdir(sportLogoDir, { recursive: true });
+      const dest = path.join(sportLogoDir, safeFilename);
+      await fsp.writeFile(dest, body);
+      sendJson(response, 200, { ok: true, url: `./user-logos/${id}/${safeFilename}` });
+    } catch (err) {
+      sendJson(response, 500, { error: String(err?.message || err) });
+    }
+    return;
+  }
+
   if (request.method === "GET" && url.pathname === "/api/config/modes") {
     try {
       sendJson(response, 200, await readConfig("modes"));
@@ -623,6 +786,11 @@ const server = http.createServer(async (request, response) => {
 
   if (request.method === "GET") {
     const pathname = url.pathname === "/" ? "/admin.html" : url.pathname;
+    // Route speciale pour servir les logos utilisateur depuis userData/logos
+    if (pathname.startsWith("/user-logos/")) {
+      await serveUserLogo(response, pathname.slice("/user-logos/".length));
+      return;
+    }
     await serveFile(response, pathname);
     return;
   }

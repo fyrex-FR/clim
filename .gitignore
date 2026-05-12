@@ -24,6 +24,11 @@ tier-state.json
 active-sessions.json
 sessions/
 
+# Sports custom + logos utilisateur (vivent dans userData chez l'utilisateur)
+sports-custom.json
+logos/
+history/
+
 # Tier-templates editable par l'utilisateur (on garde un seed dans le repo via electron-builder)
 # mais en dev local on ne veut pas commiter les modifs ad-hoc :
 # (on garde tier-templates.json versionne comme seed, donc PAS de regle ici)

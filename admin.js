@@ -41,6 +41,17 @@ function applySportToLinks() {
       // ignore
     }
   });
+  // Met a jour les tags "NBA" en haut de chaque mode-card.
+  // sportsConfig n'est pas encore initialise au tout premier appel (TDZ) -> try/catch safe.
+  let sportLabel = selectedSport.toUpperCase();
+  try {
+    if (typeof sportsConfig !== "undefined" && sportsConfig && sportsConfig[selectedSport]?.label) {
+      sportLabel = sportsConfig[selectedSport].label;
+    }
+  } catch { /* sportsConfig pas encore declare */ }
+  document.querySelectorAll("[data-sport-tag]").forEach((el) => {
+    el.textContent = sportLabel;
+  });
 }
 
 function setSelectedSport(next) {
@@ -67,6 +78,7 @@ function renderSportPicker() {
     setSelectedSport(ids[0] || "nba");
   }
   sportSelect.value = selectedSport;
+  applySportToLinks();
 }
 
 if (sportSelect) {
@@ -268,6 +280,8 @@ async function refreshAdmin() {
     tierTemplates = templates;
     currentTemplateId = tierState.templateId || currentTemplateId;
     renderSportPicker();
+    renderSportEditorSelect();
+    renderSportEditor();
     renderWheelSummary(wheelState);
     renderDraftSummary(draftState);
     renderTierSummary(tierState);
@@ -567,6 +581,460 @@ tierTemplateImportFileInput?.addEventListener("change", async (event) => {
     await importTierTemplates(file);
   }
 });
+
+// === Sport editor ===
+const BUILTIN_SPORTS = new Set(["nba", "nfl", "ucc"]);
+const sportEditorSelect = document.querySelector("#sport-editor-select");
+const sportEditorIdInput = document.querySelector("#sport-editor-id");
+const sportEditorLabelInput = document.querySelector("#sport-editor-label");
+const sportEditorNew = document.querySelector("#sport-editor-new");
+const sportEditorSave = document.querySelector("#sport-editor-save");
+const sportEditorDelete = document.querySelector("#sport-editor-delete");
+const sportEditorExport = document.querySelector("#sport-editor-export");
+const sportEditorImport = document.querySelector("#sport-editor-import");
+const sportEditorImportFile = document.querySelector("#sport-editor-import-file");
+const sportEditorDropzone = document.querySelector("#sport-editor-dropzone");
+const sportEditorFilesInput = document.querySelector("#sport-editor-files");
+const sportEditorTable = document.querySelector("#sport-editor-table");
+const sportEditorTbody = document.querySelector("#sport-editor-tbody");
+const sportEditorEmpty = document.querySelector("#sport-editor-empty");
+
+// Etat local de l'editeur (non encore sauve)
+let currentEditorSportId = null;
+let currentEditorTeams = []; // [{id, label, logo}]
+let currentEditorIsNew = false;
+
+function slugifyTeamLabel(name) {
+  return String(name || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function prettifyFilename(filename) {
+  const base = filename.replace(/\.[^.]+$/, "");
+  const cleaned = base.replace(/[-_]+/g, " ").trim();
+  return cleaned.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function getCustomSportIds() {
+  if (!sportsConfig) return [];
+  return Object.keys(sportsConfig).filter((id) => !BUILTIN_SPORTS.has(id));
+}
+
+function renderSportEditorSelect() {
+  if (!sportEditorSelect) return;
+  const customIds = getCustomSportIds();
+  sportEditorSelect.replaceChildren();
+  if (customIds.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "— aucun sport custom —";
+    sportEditorSelect.appendChild(opt);
+    return;
+  }
+  // Si aucun sport n'est en cours d'edition mais qu'il y en a en stock,
+  // on auto-charge le premier pour que les champs ID/Label se remplissent.
+  if (!currentEditorSportId && !currentEditorIsNew) {
+    loadSportIntoEditor(customIds[0]);
+    return; // loadSportIntoEditor rappelle renderSportEditor qui re-rendra le select
+  }
+  customIds.forEach((id) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = `${sportsConfig[id]?.label || id} (${id})`;
+    opt.selected = id === currentEditorSportId;
+    sportEditorSelect.appendChild(opt);
+  });
+}
+
+function loadSportIntoEditor(sportId) {
+  currentEditorIsNew = false;
+  currentEditorSportId = sportId || null;
+  if (!sportId || !sportsConfig?.[sportId]) {
+    currentEditorTeams = [];
+    sportEditorIdInput.value = "";
+    sportEditorLabelInput.value = "";
+  } else {
+    const sport = sportsConfig[sportId];
+    currentEditorTeams = (sport.teams || []).map((t) => ({ id: t.id, label: t.label, logo: t.logo }));
+    sportEditorIdInput.value = sportId;
+    sportEditorLabelInput.value = sport.label || sportId.toUpperCase();
+  }
+  renderSportEditorSelect();
+  renderSportEditor();
+}
+
+function startNewSport() {
+  currentEditorIsNew = true;
+  currentEditorSportId = null;
+  currentEditorTeams = [];
+  sportEditorIdInput.value = "";
+  sportEditorLabelInput.value = "";
+  renderSportEditor();
+}
+
+function renderSportEditor() {
+  const hasCustom = getCustomSportIds().length > 0;
+  const editing = currentEditorIsNew || currentEditorSportId;
+  // Toggle visibility
+  if (sportEditorEmpty) sportEditorEmpty.hidden = hasCustom || editing;
+  if (sportEditorDropzone) sportEditorDropzone.hidden = !editing;
+  if (sportEditorTable) sportEditorTable.hidden = !editing || currentEditorTeams.length === 0;
+
+  // Le bouton supprimer est dispo seulement si on est sur un sport custom existant
+  if (sportEditorDelete) {
+    sportEditorDelete.disabled = !currentEditorSportId || currentEditorIsNew;
+  }
+  if (sportEditorExport) {
+    sportEditorExport.disabled = !currentEditorSportId || currentEditorIsNew;
+  }
+  // Save dispo si on edite quelque chose
+  if (sportEditorSave) sportEditorSave.disabled = !editing;
+
+  // Rendu de la table
+  if (!sportEditorTbody) return;
+  sportEditorTbody.replaceChildren();
+  currentEditorTeams.forEach((team, index) => {
+    const tr = document.createElement("tr");
+    const logoCell = document.createElement("td");
+    if (team.logo) {
+      const img = document.createElement("img");
+      img.className = "sport-editor__logo";
+      img.src = team.logo;
+      img.alt = team.label;
+      logoCell.appendChild(img);
+    } else {
+      logoCell.textContent = "—";
+    }
+    const idCell = document.createElement("td");
+    const idInput = document.createElement("input");
+    idInput.type = "text";
+    idInput.value = team.id;
+    idInput.addEventListener("input", (e) => {
+      team.id = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
+    });
+    idCell.appendChild(idInput);
+    const labelCell = document.createElement("td");
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.value = team.label;
+    labelInput.addEventListener("input", (e) => { team.label = e.target.value; });
+    labelCell.appendChild(labelInput);
+    const actionsCell = document.createElement("td");
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "btn btn--danger";
+    removeBtn.style.minHeight = "30px";
+    removeBtn.style.padding = "0 10px";
+    removeBtn.style.fontSize = "0.85rem";
+    removeBtn.textContent = "Retirer";
+    removeBtn.addEventListener("click", () => {
+      currentEditorTeams.splice(index, 1);
+      renderSportEditor();
+    });
+    actionsCell.appendChild(removeBtn);
+    tr.append(logoCell, idCell, labelCell, actionsCell);
+    sportEditorTbody.appendChild(tr);
+  });
+}
+
+async function uploadLogoFile(sportId, file) {
+  const filename = slugifyTeamLabel(file.name.replace(/\.[^.]+$/, "")) + (file.name.match(/\.[^.]+$/)?.[0] || ".png");
+  const url = new URL(`./api/config/sports/${encodeURIComponent(sportId)}/logos`, window.location.href);
+  url.searchParams.set("filename", filename);
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": file.type || "application/octet-stream" },
+    body: file,
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(`Upload echec (HTTP ${res.status}): ${errBody.error || "(no detail)"}`);
+  }
+  const data = await res.json();
+  return data.url; // ./user-logos/<sportId>/<filename>
+}
+
+async function handleFilesDropped(files) {
+  const sportId = sportEditorIdInput.value.toLowerCase().trim();
+  if (!sportId || !/^[a-z0-9][a-z0-9-]{0,29}$/.test(sportId)) {
+    window.alert("Renseigne d'abord un ID de sport valide (ex: mlb)");
+    return;
+  }
+  if (BUILTIN_SPORTS.has(sportId)) {
+    window.alert("Cet ID est reserve a un sport built-in.");
+    return;
+  }
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    try {
+      const logoUrl = await uploadLogoFile(sportId, file);
+      const baseName = file.name.replace(/\.[^.]+$/, "");
+      const teamId = slugifyTeamLabel(baseName) || `team-${Date.now()}`;
+      const teamLabel = prettifyFilename(file.name);
+      // Evite doublon par id
+      if (currentEditorTeams.some((t) => t.id === teamId)) continue;
+      currentEditorTeams.push({ id: teamId, label: teamLabel, logo: logoUrl });
+    } catch (err) {
+      console.error("Upload failed for", file.name, err);
+      window.alert(`Echec upload ${file.name} : ${err.message}`);
+    }
+  }
+  renderSportEditor();
+}
+
+async function saveSportEditor() {
+  const id = sportEditorIdInput.value.toLowerCase().trim();
+  const label = sportEditorLabelInput.value.trim() || id.toUpperCase();
+  if (!id || !/^[a-z0-9][a-z0-9-]{0,29}$/.test(id)) {
+    window.alert("ID invalide (lettres / chiffres / tirets, 1-30 caracteres, doit commencer par lettre/chiffre)");
+    return;
+  }
+  if (BUILTIN_SPORTS.has(id)) {
+    window.alert("Cet ID est reserve a un sport built-in.");
+    return;
+  }
+  if (currentEditorTeams.length === 0) {
+    if (!window.confirm("Aucune equipe ajoutee. Sauvegarder quand meme ?")) return;
+  }
+  try {
+    const res = await fetch("./api/config/sports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, label, teams: currentEditorTeams }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    // Rafraichit la config sports
+    sportsConfig = await fetchSportsConfig();
+    renderSportPicker();
+    currentEditorSportId = id;
+    currentEditorIsNew = false;
+    renderSportEditorSelect();
+    renderSportEditor();
+    window.alert(`Sport "${label}" sauvegarde.`);
+  } catch (err) {
+    window.alert("Erreur sauvegarde : " + err.message);
+  }
+}
+
+async function deleteSportEditor() {
+  if (!currentEditorSportId) return;
+  if (!window.confirm(`Supprimer le sport "${currentEditorSportId}" et tous ses logos ?`)) return;
+  try {
+    const res = await fetch(`./api/config/sports/${encodeURIComponent(currentEditorSportId)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    sportsConfig = await fetchSportsConfig();
+    renderSportPicker();
+    currentEditorSportId = null;
+    currentEditorIsNew = false;
+    currentEditorTeams = [];
+    sportEditorIdInput.value = "";
+    sportEditorLabelInput.value = "";
+    renderSportEditorSelect();
+    renderSportEditor();
+  } catch (err) {
+    window.alert("Erreur suppression : " + err.message);
+  }
+}
+
+// Export d'un sport en .zip contenant sport.json + tous les logos
+async function exportCurrentSport() {
+  if (!currentEditorSportId || !sportsConfig?.[currentEditorSportId]) return;
+  if (typeof JSZip === "undefined") {
+    window.alert("JSZip n'est pas charge. Recharge la page.");
+    return;
+  }
+  const sport = sportsConfig[currentEditorSportId];
+  const zip = new JSZip();
+  const logosFolder = zip.folder("logos");
+
+  // Manifest avec chemins relatifs aux logos dans le zip
+  const teamsForExport = [];
+  for (const team of sport.teams) {
+    let logoFilename = "";
+    if (team.logo) {
+      try {
+        const res = await fetch(team.logo, { cache: "no-store" });
+        if (res.ok) {
+          const blob = await res.blob();
+          // Recupere le nom du fichier d'origine ou genere un slug
+          logoFilename = (team.logo.split("/").pop() || `${team.id}.png`).toLowerCase();
+          logosFolder.file(logoFilename, blob);
+        }
+      } catch (err) {
+        console.warn("Skip logo fetch for", team.id, err);
+      }
+    }
+    teamsForExport.push({ id: team.id, label: team.label, logo: logoFilename ? `logos/${logoFilename}` : "" });
+  }
+
+  const manifest = {
+    type: "break-overlay-sport",
+    version: 2,
+    id: currentEditorSportId,
+    label: sport.label,
+    teams: teamsForExport,
+  };
+  zip.file("sport.json", JSON.stringify(manifest, null, 2));
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `sport-${currentEditorSportId}.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Import d'un sport depuis un .zip (ou .json legacy)
+async function importSportFromFile(file) {
+  try {
+    if (file.name.toLowerCase().endsWith(".json")) {
+      // Format legacy : juste un JSON (sans logos)
+      return await importSportFromJson(file);
+    }
+    if (typeof JSZip === "undefined") {
+      window.alert("JSZip n'est pas charge. Recharge la page.");
+      return;
+    }
+    const zip = await JSZip.loadAsync(file);
+    const manifestEntry = zip.file("sport.json");
+    if (!manifestEntry) {
+      window.alert("Le zip ne contient pas sport.json.");
+      return;
+    }
+    const manifest = JSON.parse(await manifestEntry.async("string"));
+    if (manifest.type !== "break-overlay-sport" || !manifest.id || !Array.isArray(manifest.teams)) {
+      window.alert("Fichier invalide : ce n'est pas un export de sport.");
+      return;
+    }
+    if (BUILTIN_SPORTS.has(manifest.id)) {
+      window.alert(`L'ID "${manifest.id}" est reserve. Renomme le sport avant import.`);
+      return;
+    }
+
+    // Upload chaque logo present dans le zip
+    const teamsForServer = [];
+    for (const team of manifest.teams) {
+      let logoUrl = "";
+      if (team.logo && typeof team.logo === "string") {
+        const entry = zip.file(team.logo);
+        if (entry) {
+          const blob = await entry.async("blob");
+          const filename = team.logo.split("/").pop() || `${team.id}.png`;
+          const file = new File([blob], filename, { type: blob.type || "image/png" });
+          try {
+            logoUrl = await uploadLogoFile(manifest.id, file);
+          } catch (err) {
+            console.warn("Logo upload failed for", team.id, err);
+          }
+        }
+      }
+      teamsForServer.push({ id: team.id, label: team.label, logo: logoUrl });
+    }
+
+    // Sauvegarde du sport
+    const res = await fetch("./api/config/sports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: manifest.id, label: manifest.label, teams: teamsForServer }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+
+    sportsConfig = await fetchSportsConfig();
+    renderSportPicker();
+    currentEditorSportId = manifest.id;
+    currentEditorIsNew = false;
+    loadSportIntoEditor(manifest.id);
+    renderSportEditorSelect();
+    window.alert(`Sport "${manifest.label}" importe avec ${teamsForServer.filter((t) => t.logo).length} logo(s).`);
+  } catch (err) {
+    window.alert("Erreur import : " + err.message);
+  }
+}
+
+// Fallback pour anciens exports JSON sans logos
+async function importSportFromJson(file) {
+  const text = await file.text();
+  const parsed = JSON.parse(text);
+  if (parsed.type !== "break-overlay-sport" || !parsed.id || !Array.isArray(parsed.teams)) {
+    window.alert("Fichier invalide : ce n'est pas un export de sport.");
+    return;
+  }
+  if (BUILTIN_SPORTS.has(parsed.id)) {
+    window.alert(`L'ID "${parsed.id}" est reserve.`);
+    return;
+  }
+  // Les logos pointent sur des URLs absolues d'une autre instance -> on garde tels quels mais ils risquent de ne pas charger
+  const res = await fetch("./api/config/sports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: parsed.id, label: parsed.label, teams: parsed.teams }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  sportsConfig = await fetchSportsConfig();
+  renderSportPicker();
+  currentEditorSportId = parsed.id;
+  currentEditorIsNew = false;
+  loadSportIntoEditor(parsed.id);
+  renderSportEditorSelect();
+  window.alert(`Sport "${parsed.label}" importe (JSON legacy, sans logos).`);
+}
+
+// Listeners
+sportEditorSelect?.addEventListener("change", () => {
+  if (sportEditorSelect.value) loadSportIntoEditor(sportEditorSelect.value);
+});
+sportEditorNew?.addEventListener("click", startNewSport);
+sportEditorSave?.addEventListener("click", () => { void saveSportEditor(); });
+sportEditorDelete?.addEventListener("click", () => { void deleteSportEditor(); });
+sportEditorExport?.addEventListener("click", () => { void exportCurrentSport(); });
+sportEditorImport?.addEventListener("click", () => sportEditorImportFile?.click());
+sportEditorImportFile?.addEventListener("change", (event) => {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (file) void importSportFromFile(file);
+});
+
+// Drag-drop
+if (sportEditorDropzone) {
+  sportEditorDropzone.addEventListener("click", () => sportEditorFilesInput?.click());
+  sportEditorDropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    sportEditorDropzone.classList.add("sport-editor__dropzone--hover");
+  });
+  sportEditorDropzone.addEventListener("dragleave", () => {
+    sportEditorDropzone.classList.remove("sport-editor__dropzone--hover");
+  });
+  sportEditorDropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    sportEditorDropzone.classList.remove("sport-editor__dropzone--hover");
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (files.length > 0) void handleFilesDropped(files);
+  });
+  sportEditorFilesInput?.addEventListener("change", (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (files.length > 0) void handleFilesDropped(files);
+  });
+}
 
 // === Historique ===
 const historyTable = document.querySelector("#history-table");

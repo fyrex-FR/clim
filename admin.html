@@ -55,7 +55,7 @@
           <article class="mode-card">
             <div class="mode-card__head">
               <div>
-                <p class="mode-card__tag">NBA</p>
+                <p class="mode-card__tag" data-sport-tag>NBA</p>
                 <h2>Wheel Random</h2>
               </div>
               <span id="wheel-badge" class="mode-card__badge">Chargement...</span>
@@ -86,7 +86,7 @@
           <article class="mode-card">
             <div class="mode-card__head">
               <div>
-                <p class="mode-card__tag">NBA</p>
+                <p class="mode-card__tag" data-sport-tag>NBA</p>
                 <h2>Draft</h2>
               </div>
               <span id="draft-badge" class="mode-card__badge">Chargement...</span>
@@ -117,7 +117,7 @@
           <article class="mode-card">
             <div class="mode-card__head">
               <div>
-                <p class="mode-card__tag">NBA</p>
+                <p class="mode-card__tag" data-sport-tag>NBA</p>
                 <h2>Tier Break</h2>
               </div>
               <span id="tier-badge" class="mode-card__badge">Chargement...</span>
@@ -144,6 +144,59 @@
               </div>
             </div>
           </article>
+        </section>
+
+        <section class="section-head section-head--spaced">
+          <div>
+            <p class="section-head__eyebrow">Configuration</p>
+            <h2>Editeur de sports</h2>
+          </div>
+          <p>Cree tes propres sports (MLB, NHL, etc.) avec leurs equipes et logos. Les sports built-in (NBA / NFL / UCC) sont en lecture seule.</p>
+        </section>
+
+        <section class="future-panel">
+          <div class="sport-editor">
+            <div class="sport-editor__toolbar">
+              <label class="template-editor__field">
+                <span>Sport</span>
+                <select id="sport-editor-select"></select>
+              </label>
+              <label class="template-editor__field">
+                <span>ID</span>
+                <input id="sport-editor-id" class="session-input" type="text" placeholder="ex: mlb" />
+              </label>
+              <label class="template-editor__field">
+                <span>Label</span>
+                <input id="sport-editor-label" class="session-input" type="text" placeholder="ex: MLB" />
+              </label>
+              <button id="sport-editor-new" class="btn" type="button">Nouveau</button>
+              <button id="sport-editor-save" class="btn" type="button">Sauvegarder</button>
+              <button id="sport-editor-export" class="btn btn--ghost" type="button">Exporter</button>
+              <button id="sport-editor-import" class="btn btn--ghost" type="button">Importer</button>
+              <input id="sport-editor-import-file" type="file" accept=".zip,.json" hidden />
+              <button id="sport-editor-delete" class="btn btn--danger" type="button">Supprimer</button>
+            </div>
+
+            <div id="sport-editor-empty" class="sport-editor__empty">Aucun sport custom. Clique sur Nouveau ou Importer pour commencer.</div>
+
+            <div id="sport-editor-dropzone" class="sport-editor__dropzone" hidden>
+              <strong>Glisse des PNG ici</strong>
+              <span>ou clique pour choisir des fichiers (une equipe sera creee par image)</span>
+              <input id="sport-editor-files" type="file" accept="image/*" multiple hidden />
+            </div>
+
+            <table id="sport-editor-table" class="sport-editor__table" hidden>
+              <thead>
+                <tr>
+                  <th>Logo</th>
+                  <th>ID</th>
+                  <th>Label</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sport-editor-tbody"></tbody>
+            </table>
+          </div>
         </section>
 
         <section class="section-head section-head--spaced">
@@ -224,6 +277,7 @@
       </div>
     </div>
 
+    <script src="./jszip.min.js"></script>
     <script src="./sport.js"></script>
     <script src="./admin.js"></script>
   </body>

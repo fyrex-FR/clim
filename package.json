@@ -28,6 +28,7 @@
       "main.js",
       "server.js",
       "sport.js",
+      "jszip.min.js",
       "tokens.css",
       "admin.html",
       "admin.css",
