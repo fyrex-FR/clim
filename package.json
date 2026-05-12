@@ -72,7 +72,10 @@
       "artifactName": "${productName} Setup ${version}.${ext}"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        { "target": "dmg", "arch": ["arm64"] },
+        { "target": "zip", "arch": ["arm64"] }
+      ],
       "category": "public.app-category.entertainment",
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
