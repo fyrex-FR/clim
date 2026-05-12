@@ -181,8 +181,48 @@
             <div id="tier-template-grid" class="template-grid"></div>
           </div>
         </section>
+
+        <section class="section-head section-head--spaced">
+          <div>
+            <p class="section-head__eyebrow">Archives</p>
+            <h2>Historique des breaks</h2>
+          </div>
+          <p>Les breaks termines sont sauvegardes automatiquement (100 plus recents).</p>
+        </section>
+
+        <section class="future-panel">
+          <div class="history-panel">
+            <div id="history-empty" class="history-empty" hidden>Aucun break archive pour l'instant.</div>
+            <table id="history-table" class="history-table" hidden>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Sport</th>
+                  <th>Mode</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="history-tbody"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </main>
+
+    <!-- Modal de detail d'un break archive -->
+    <div id="history-modal" class="history-modal" hidden>
+      <div class="history-modal__backdrop" data-close-modal></div>
+      <div class="history-modal__inner">
+        <header class="history-modal__head">
+          <div>
+            <p class="history-modal__eyebrow" id="history-modal-eyebrow"></p>
+            <h2 id="history-modal-title"></h2>
+          </div>
+          <button id="history-modal-close" class="btn btn--ghost" type="button">Fermer</button>
+        </header>
+        <div id="history-modal-body" class="history-modal__body"></div>
+      </div>
+    </div>
 
     <script src="./sport.js"></script>
     <script src="./admin.js"></script>

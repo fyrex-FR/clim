@@ -191,6 +191,29 @@ body:not(.app-ready) .draft-shell {
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.24));
 }
 
+/* Animation flip 3D + glow quand un nouveau logo arrive */
+.player-card__slot--fresh {
+  position: relative;
+  border-color: rgba(245, 195, 94, 0.6) !important;
+  background: rgba(231, 184, 92, 0.12) !important;
+  animation: player-slot-glow 1200ms ease-out 1;
+}
+.player-card__slot--fresh img {
+  animation: player-slot-flip 900ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+  transform-style: preserve-3d;
+}
+@keyframes player-slot-flip {
+  0%   { transform: rotateY(0deg) scale(0.3); opacity: 0; }
+  40%  { transform: rotateY(360deg) scale(1.2); opacity: 1; }
+  70%  { transform: rotateY(720deg) scale(0.95); }
+  100% { transform: rotateY(720deg) scale(1); }
+}
+@keyframes player-slot-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 195, 94, 0.55); }
+  50%  { box-shadow: 0 0 0 6px rgba(245, 195, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 195, 94, 0); }
+}
+
 .teams-panel {
   margin-top: 16px;
 }

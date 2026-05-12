@@ -10,6 +10,8 @@ const nextDrawLabel = document.querySelector("#next-draw-label");
 const templateSelect = document.querySelector("#template-select");
 const drawNextButton = document.querySelector("#draw-next");
 const startDrawButton = document.querySelector("#start-draw");
+const showRecapButton = document.querySelector("#show-recap");
+const hideRecapButton = document.querySelector("#hide-recap");
 const undoButton = document.querySelector("#undo");
 const resetButton = document.querySelector("#reset");
 const exportCsvButton = document.querySelector("#export-csv");
@@ -75,6 +77,7 @@ function createDefaultState() {
   return {
     templateId: "nba-standard",
     started: false,
+    recapVisible: false,
     participants: Array.from({ length: 10 }, (_, index) => ({
       id: `player-${index + 1}`,
       name: `Spot ${index + 1}`,
@@ -90,6 +93,7 @@ function sanitizeState(candidate) {
   return {
     templateId: typeof candidate?.templateId === "string" && candidate.templateId.trim() ? candidate.templateId.trim() : defaults.templateId,
     started: candidate?.started === true,
+    recapVisible: candidate?.recapVisible === true,
     participants: defaults.participants.map((player, index) => {
       const incoming = Array.isArray(candidate?.participants) ? candidate.participants[index] : null;
       const slotNumber = Number.isInteger(incoming?.slotNumber) ? incoming.slotNumber : null;
@@ -455,6 +459,86 @@ function playReveal(item, { rolling = 1100 } = {}) {
   });
 }
 
+// Animation cinematique plein ecran pour la revelation des equipes en mode display.
+// Affiche : eyebrow ("Tier X - Spot Y"), logo flip 3D + glow + particules, nom equipe, pseudo gagnant.
+// Reste affichee ~3.5s puis fade-out.
+function playCinematic({ eyebrow = "", logo = "", label = "", player = "", duration = 3500 } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.querySelector("#cinematic");
+    if (!overlay) { resolve(); return; }
+    const eyebrowEl = overlay.querySelector("#cinematic-eyebrow");
+    const logoEl = overlay.querySelector("#cinematic-logo");
+    const labelEl = overlay.querySelector("#cinematic-label");
+    const playerEl = overlay.querySelector("#cinematic-player");
+
+    eyebrowEl.textContent = eyebrow;
+    labelEl.textContent = label;
+    playerEl.textContent = player;
+    if (logo) {
+      logoEl.src = logo;
+      logoEl.alt = label;
+      logoEl.hidden = false;
+    } else {
+      logoEl.hidden = true;
+      logoEl.removeAttribute("src");
+    }
+
+    // Force un reflow pour que les animations CSS redemarrent meme si l'overlay etait deja monte
+    overlay.removeAttribute("data-state");
+    overlay.hidden = true;
+    void overlay.offsetWidth;
+    overlay.hidden = false;
+
+    setTimeout(() => {
+      overlay.dataset.state = "leaving";
+      setTimeout(() => {
+        overlay.hidden = true;
+        overlay.removeAttribute("data-state");
+        resolve();
+      }, 400);
+    }, duration - 400);
+  });
+}
+
+function updateRecap() {
+  const overlay = document.querySelector("#recap");
+  if (!overlay) return;
+  const visible = state.recapVisible && getDrawPhase() === "complete" && mode === "display";
+  document.body.classList.toggle("recap-on", visible);
+  if (!visible) {
+    overlay.hidden = true;
+    return;
+  }
+  overlay.hidden = false;
+  const titleEl = overlay.querySelector("#recap-title");
+  if (titleEl) titleEl.textContent = (sport?.label || "").toUpperCase() + " — Tier Break";
+
+  const grid = overlay.querySelector("#recap-grid");
+  grid.replaceChildren();
+  for (let slotNumber = 1; slotNumber <= 10; slotNumber += 1) {
+    const player = getParticipantBySlot(slotNumber);
+    const card = document.createElement("article");
+    card.className = "recap-card";
+    card.style.animationDelay = `${120 + slotNumber * 60}ms`;
+    const teamsHtml = [1, 2, 3].map((tier) => {
+      const teamId = player?.teams?.[tier];
+      const team = teamId ? getTeam(teamId) : null;
+      if (team) {
+        return `<div class="recap-card__team"><img src="${team.logo}" alt="${team.label}" /></div>`;
+      }
+      return `<div class="recap-card__team recap-card__team--empty"></div>`;
+    }).join("");
+    card.innerHTML = `
+      <div class="recap-card__head">
+        <span class="recap-card__spot">Spot ${slotNumber}</span>
+      </div>
+      <div class="recap-card__player">${player?.name || "—"}</div>
+      <div class="recap-card__teams" style="margin-top:10px">${teamsHtml}</div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
 function updateDrawStage(data = buildWheelData()) {
   if (!drawStage) {
     return;
@@ -484,14 +568,26 @@ function updateSlots() {
 
     [1, 2, 3].forEach((tierNumber) => {
       const slot = card.querySelector(`[data-tier-slot="${tierNumber}"]`);
-      slot.replaceChildren();
       const teamId = player?.teams?.[tierNumber];
+      const currentTeamId = slot.dataset.teamId || "";
+      const nextTeamId = teamId || "";
+      if (currentTeamId === nextTeamId) {
+        // Pas de changement, on touche pas au DOM (et donc pas de re-animation)
+        return;
+      }
+      slot.replaceChildren();
+      slot.classList.remove("slot-card__team--fresh");
       if (teamId) {
         const team = getTeam(teamId);
         if (team) {
           slot.innerHTML = `<img src="${team.logo}" alt="${team.label}" />`;
+          // Si le slot etait vide avant -> animation flip
+          if (!currentTeamId) {
+            slot.classList.add("slot-card__team--fresh");
+          }
         }
       }
+      slot.dataset.teamId = nextTeamId;
     });
   }
 }
@@ -547,10 +643,18 @@ function updateToolbar() {
   const teamDrawStarted = assignedTeams > 0;
   templateSelect.disabled = mode !== "streamer" || isSaving || isAnimating || teamDrawStarted;
   drawNextButton.disabled = mode !== "streamer" || isSaving || isAnimating || phase === "complete" || phase === "waiting";
-  drawNextButton.hidden = phase === "waiting";
+  drawNextButton.hidden = phase === "waiting" || phase === "complete";
   if (startDrawButton) {
     startDrawButton.hidden = mode !== "streamer" || phase !== "waiting";
     startDrawButton.disabled = mode !== "streamer" || isSaving || isAnimating;
+  }
+  if (showRecapButton) {
+    showRecapButton.hidden = mode !== "streamer" || phase !== "complete" || state.recapVisible;
+    showRecapButton.disabled = mode !== "streamer" || isSaving || isAnimating;
+  }
+  if (hideRecapButton) {
+    hideRecapButton.hidden = mode !== "streamer" || !state.recapVisible;
+    hideRecapButton.disabled = mode !== "streamer" || isSaving;
   }
   undoButton.disabled = mode !== "streamer" || isSaving || isAnimating || state.history.length === 0;
   resetButton.disabled = mode !== "streamer" || isSaving || isAnimating;
@@ -577,6 +681,7 @@ function render(forceTemplate = false) {
   updateToolbar();
   updatePhaseClass();
   updateDrawStage();
+  updateRecap();
 }
 
 function assignNextSpot() {
@@ -680,23 +785,16 @@ async function playSpotAnimation(animation) {
 
 async function playTierAnimation(animation) {
   if (mode === "display") {
-    const data = {
-      phase: "teams",
-      meta: `Tirage tier ${animation.tier}`,
-      label: `Spot ${animation.slotNumber}`,
-      hubMeta: `Tier ${animation.tier}`,
-      hubLabel: `Spot ${animation.slotNumber}`,
-      items: animation.candidateTeamIds.map((teamId) => {
-        const team = getTeam(teamId);
-        return team ? { id: team.id, label: team.label, logo: team.logo } : null;
-      }).filter(Boolean),
-    };
-    updateDrawStage(data);
     const slotCard = slotsGrid.querySelector(`[data-slot-number="${animation.slotNumber}"]`);
     setPulseState(slotCard);
     const winningTeam = getTeam(animation.winningTeamId);
-    await playReveal(winningTeam ? { id: winningTeam.id, label: winningTeam.label, logo: winningTeam.logo } : null);
-    await sleep(420);
+    const player = getParticipantBySlot(animation.slotNumber);
+    await playCinematic({
+      eyebrow: `Tier ${animation.tier} — Spot ${animation.slotNumber}`,
+      logo: winningTeam?.logo || "",
+      label: winningTeam?.label || "",
+      player: player?.name || "",
+    });
     clearPulseState();
     return;
   }
@@ -835,6 +933,21 @@ function startDraw() {
   }
   state.started = true;
   render(true);
+  void saveState();
+}
+
+function showRecap() {
+  if (mode !== "streamer" || isSaving || isAnimating) return;
+  if (getDrawPhase() !== "complete") return;
+  state.recapVisible = true;
+  render(false);
+  void saveState();
+}
+
+function hideRecap() {
+  if (mode !== "streamer" || isSaving) return;
+  state.recapVisible = false;
+  render(false);
   void saveState();
 }
 
@@ -996,6 +1109,8 @@ function exportCsv() {
 
 drawNextButton.addEventListener("click", drawNext);
 startDrawButton?.addEventListener("click", startDraw);
+showRecapButton?.addEventListener("click", showRecap);
+hideRecapButton?.addEventListener("click", hideRecap);
 undoButton.addEventListener("click", undoLast);
 resetButton.addEventListener("click", resetTierBreak);
 exportCsvButton?.addEventListener("click", exportCsv);

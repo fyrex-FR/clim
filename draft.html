@@ -28,6 +28,8 @@
           </div>
 
           <section class="draft-controls" aria-label="Actions draft">
+            <button id="show-recap" class="btn btn--primary" type="button" hidden>Afficher récap</button>
+            <button id="hide-recap" class="btn" type="button" hidden>Masquer récap</button>
             <button id="undo" class="btn btn--primary" type="button">
               Annuler
             </button>
@@ -53,6 +55,31 @@
         </section>
       </section>
     </main>
+
+    <!-- Recap final plein ecran -->
+    <div id="recap" class="recap" hidden>
+      <div class="recap__backdrop"></div>
+      <div class="recap__inner">
+        <header class="recap__header">
+          <p class="recap__eyebrow">Draft — Resultats</p>
+          <h1 class="recap__title" id="recap-title">NBA</h1>
+        </header>
+        <div class="recap__grid" id="recap-grid"></div>
+      </div>
+    </div>
+
+    <!-- Cinematic overlay plein ecran pour la revelation des picks -->
+    <div id="cinematic" class="cinematic" hidden>
+      <div class="cinematic__backdrop"></div>
+      <div class="cinematic__content">
+        <p class="cinematic__eyebrow" id="cinematic-eyebrow">Pick 1</p>
+        <div class="cinematic__logo-wrap">
+          <img class="cinematic__logo" id="cinematic-logo" alt="" />
+        </div>
+        <strong class="cinematic__label" id="cinematic-label">Lakers</strong>
+        <p class="cinematic__player" id="cinematic-player"></p>
+      </div>
+    </div>
 
     <script src="./sport.js"></script>
     <script src="./draft.js"></script>

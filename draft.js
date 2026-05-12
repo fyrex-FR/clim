@@ -1,4 +1,5 @@
 let nbaTeams = [];
+let sport = null;
 
 const playerCount = 10;
 const rounds = 3;
@@ -12,6 +13,8 @@ const currentPlayerLabel = document.querySelector("#current-player-label");
 const teamsLeftLabel = document.querySelector("#teams-left-label");
 const resetButton = document.querySelector("#reset");
 const undoButton = document.querySelector("#undo");
+const showRecapButton = document.querySelector("#show-recap");
+const hideRecapButton = document.querySelector("#hide-recap");
 
 let state = createDefaultState();
 let isSaving = false;
@@ -34,6 +37,7 @@ function createDefaultState() {
   return {
     participants: createDefaultParticipants(),
     currentPick: 0,
+    recapVisible: false,
   };
 }
 
@@ -52,6 +56,7 @@ function sanitizeState(candidate) {
   return {
     participants,
     currentPick: Math.max(0, Math.min(currentPick, nbaTeams.length)),
+    recapVisible: candidate?.recapVisible === true,
   };
 }
 
@@ -172,28 +177,46 @@ function buildTeamTile(team) {
   return button;
 }
 
-function renderPlayerTeams(player) {
+function renderPlayerTeams(player, freshSlotIndex = -1) {
   const root = playersRoot.querySelector(`[data-player-teams="${player.id}"]`);
   if (!root) {
     return;
   }
+
+  // Reconstruit seulement si le nombre/contenu a change, sinon on garde le DOM
+  // pour eviter de relancer l'animation de tous les slots existants.
+  const existing = root.children;
+  const sameLength = existing.length === rounds;
+  let sameContent = sameLength;
+  if (sameLength) {
+    for (let i = 0; i < rounds; i += 1) {
+      const dom = existing[i]?.dataset?.teamId || "";
+      const next = player.teams[i] || "";
+      if (dom !== next) { sameContent = false; break; }
+    }
+  }
+  if (sameContent && freshSlotIndex < 0) return;
 
   root.replaceChildren();
   for (let slotIndex = 0; slotIndex < rounds; slotIndex += 1) {
     const slot = document.createElement("div");
     slot.className = "player-card__slot";
     const teamId = player.teams[slotIndex];
+    slot.dataset.teamId = teamId || "";
     if (teamId) {
       const team = nbaTeams.find((entry) => entry.id === teamId);
       if (team) {
         slot.innerHTML = `<img src="${team.logo}" alt="${team.label}" />`;
+        if (slotIndex === freshSlotIndex) {
+          slot.classList.add("player-card__slot--fresh");
+        }
       }
     }
     root.appendChild(slot);
   }
 }
 
-function updatePlayerCard(index) {
+function updatePlayerCard(index, freshSlotIndex = -1) {
   const player = getPlayerByIndex(index);
   if (!player) {
     return;
@@ -209,7 +232,7 @@ function updatePlayerCard(index) {
   if (input && input.value !== player.name) {
     input.value = player.name;
   }
-  renderPlayerTeams(player);
+  renderPlayerTeams(player, freshSlotIndex);
 }
 
 function updateTeamTile(teamId) {
@@ -231,6 +254,53 @@ function renderToolbar() {
   teamsLeftLabel.textContent = `${nbaTeams.length - getAssignedTeamIds().size} restantes`;
   undoButton.disabled = mode !== "streamer" || state.currentPick === 0 || isSaving;
   resetButton.disabled = mode !== "streamer" || isSaving;
+  const isComplete = state.currentPick >= draftOrder.length;
+  if (showRecapButton) {
+    showRecapButton.hidden = mode !== "streamer" || !isComplete || state.recapVisible;
+    showRecapButton.disabled = mode !== "streamer" || isSaving;
+  }
+  if (hideRecapButton) {
+    hideRecapButton.hidden = mode !== "streamer" || !state.recapVisible;
+    hideRecapButton.disabled = mode !== "streamer" || isSaving;
+  }
+}
+
+function updateRecap() {
+  const overlay = document.querySelector("#recap");
+  if (!overlay) return;
+  const isComplete = state.currentPick >= draftOrder.length;
+  const visible = state.recapVisible && isComplete && mode === "display";
+  document.body.classList.toggle("recap-on", visible);
+  if (!visible) {
+    overlay.hidden = true;
+    return;
+  }
+  overlay.hidden = false;
+  const titleEl = overlay.querySelector("#recap-title");
+  if (titleEl) titleEl.textContent = (sport?.label || "").toUpperCase() + " — Draft";
+  const grid = overlay.querySelector("#recap-grid");
+  grid.replaceChildren();
+  state.participants.forEach((player, index) => {
+    const card = document.createElement("article");
+    card.className = "recap-card";
+    card.style.animationDelay = `${120 + index * 60}ms`;
+    const teamsHtml = Array.from({ length: rounds }, (_, slotIdx) => {
+      const teamId = player.teams[slotIdx];
+      const team = teamId ? nbaTeams.find((t) => t.id === teamId) : null;
+      if (team) {
+        return `<div class="recap-card__team"><img src="${team.logo}" alt="${team.label}" /></div>`;
+      }
+      return `<div class="recap-card__team recap-card__team--empty"></div>`;
+    }).join("");
+    card.innerHTML = `
+      <div class="recap-card__head">
+        <span class="recap-card__spot">Spot ${index + 1}</span>
+      </div>
+      <div class="recap-card__player">${player.name}</div>
+      <div class="recap-card__teams" style="margin-top:10px">${teamsHtml}</div>
+    `;
+    grid.appendChild(card);
+  });
 }
 
 function renderPlayers(force = false) {
@@ -265,6 +335,22 @@ function render(force = false) {
   state.participants.forEach((_, index) => updatePlayerCard(index));
   nbaTeams.forEach((team) => updateTeamTile(team.id));
   renderToolbar();
+  updateRecap();
+}
+
+function showRecap() {
+  if (mode !== "streamer" || isSaving) return;
+  if (state.currentPick < draftOrder.length) return;
+  state.recapVisible = true;
+  render(false);
+  void saveState();
+}
+
+function hideRecap() {
+  if (mode !== "streamer" || isSaving) return;
+  state.recapVisible = false;
+  render(false);
+  void saveState();
 }
 
 function assignTeam(teamId) {
@@ -331,9 +417,74 @@ function applyStateDiff(previousState, nextState) {
   });
 
   changedTeams.forEach((teamId) => updateTeamTile(teamId));
+  // Detecte pour chaque player si un nouveau slot a ete attribue (next.teams.length > prev.teams.length)
+  // -> on passe cet index a updatePlayerCard pour declencher l'animation flip.
   previousState.participants.forEach((_, index) => updatePlayerCard(index));
-  nextState.participants.forEach((_, index) => updatePlayerCard(index));
+  let freshPick = null;
+  nextState.participants.forEach((p, index) => {
+    const prev = previousState.participants[index];
+    const prevLen = prev?.teams?.length || 0;
+    const nextLen = p.teams.length;
+    const freshSlot = (nextLen > prevLen) ? nextLen - 1 : -1;
+    updatePlayerCard(index, freshSlot);
+    if (freshSlot >= 0 && !freshPick) {
+      freshPick = { player: p, slotIndex: freshSlot, teamId: p.teams[freshSlot] };
+    }
+  });
   renderToolbar();
+  updateRecap();
+
+  // En mode display, declenche le cinematic plein ecran quand un nouveau pick arrive
+  if (mode === "display" && freshPick && freshPick.teamId) {
+    const team = nbaTeams.find((t) => t.id === freshPick.teamId);
+    if (team) {
+      const pickNumber = nextState.currentPick; // 1-indexed (le pick qu'on vient de faire)
+      void playCinematic({
+        eyebrow: `Pick ${pickNumber} — Round ${freshPick.slotIndex + 1}`,
+        logo: team.logo,
+        label: team.label,
+        player: freshPick.player.name,
+      });
+    }
+  }
+}
+
+// Animation cinematique plein ecran. Voir tokens.css pour le style.
+function playCinematic({ eyebrow = "", logo = "", label = "", player = "", duration = 3500 } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.querySelector("#cinematic");
+    if (!overlay) { resolve(); return; }
+    const eyebrowEl = overlay.querySelector("#cinematic-eyebrow");
+    const logoEl = overlay.querySelector("#cinematic-logo");
+    const labelEl = overlay.querySelector("#cinematic-label");
+    const playerEl = overlay.querySelector("#cinematic-player");
+
+    eyebrowEl.textContent = eyebrow;
+    labelEl.textContent = label;
+    playerEl.textContent = player;
+    if (logo) {
+      logoEl.src = logo;
+      logoEl.alt = label;
+      logoEl.hidden = false;
+    } else {
+      logoEl.hidden = true;
+      logoEl.removeAttribute("src");
+    }
+
+    overlay.removeAttribute("data-state");
+    overlay.hidden = true;
+    void overlay.offsetWidth;
+    overlay.hidden = false;
+
+    setTimeout(() => {
+      overlay.dataset.state = "leaving";
+      setTimeout(() => {
+        overlay.hidden = true;
+        overlay.removeAttribute("data-state");
+        resolve();
+      }, 400);
+    }, duration - 400);
+  });
 }
 
 function applyIncomingState(nextState) {
@@ -379,6 +530,8 @@ function connectStateStream() {
 }
 
 undoButton.addEventListener("click", undoPick);
+showRecapButton?.addEventListener("click", showRecap);
+hideRecapButton?.addEventListener("click", hideRecap);
 resetButton.addEventListener("click", resetDraft);
 
 window.addEventListener("keydown", (event) => {
@@ -399,7 +552,7 @@ window.addEventListener("keydown", (event) => {
 
 void (async () => {
   try {
-    const sport = await AppSport.loadSport();
+    sport = await AppSport.loadSport();
     nbaTeams = sport.teams;
     document.title = `${sport.label} Draft Break`;
   } catch (error) {

@@ -568,4 +568,208 @@ tierTemplateImportFileInput?.addEventListener("change", async (event) => {
   }
 });
 
+// === Historique ===
+const historyTable = document.querySelector("#history-table");
+const historyTbody = document.querySelector("#history-tbody");
+const historyEmpty = document.querySelector("#history-empty");
+const historyModal = document.querySelector("#history-modal");
+const historyModalTitle = document.querySelector("#history-modal-title");
+const historyModalEyebrow = document.querySelector("#history-modal-eyebrow");
+const historyModalBody = document.querySelector("#history-modal-body");
+const historyModalClose = document.querySelector("#history-modal-close");
+
+function formatHistoryDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+  } catch { return iso; }
+}
+
+async function fetchHistory() {
+  const res = await fetch("./api/history", { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+async function fetchHistoryEntry(id) {
+  const res = await fetch(`./api/history/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+async function deleteHistoryEntry(id) {
+  const res = await fetch(`./api/history/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+}
+
+async function renderHistory() {
+  if (!historyTbody) return;
+  let entries = [];
+  try {
+    entries = await fetchHistory();
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+  historyTbody.replaceChildren();
+  if (entries.length === 0) {
+    historyTable.hidden = true;
+    historyEmpty.hidden = false;
+    return;
+  }
+  historyEmpty.hidden = true;
+  historyTable.hidden = false;
+  entries.forEach((entry) => {
+    const tr = document.createElement("tr");
+    const sportLabel = sportsConfig?.[entry.sportId]?.label || entry.sportId.toUpperCase();
+    tr.innerHTML = `
+      <td>${formatHistoryDate(entry.createdAt)}</td>
+      <td><span class="history-badge">${sportLabel}</span></td>
+      <td><span class="history-badge">${entry.scope === "tier" ? "Tier" : entry.scope === "draft" ? "Draft" : entry.scope}</span></td>
+      <td>
+        <div class="history-table__actions">
+          <button class="btn" data-action="view" data-id="${entry.id}">Voir</button>
+          <button class="btn" data-action="csv" data-id="${entry.id}">CSV</button>
+          <button class="btn btn--danger" data-action="delete" data-id="${entry.id}">Supprimer</button>
+        </div>
+      </td>
+    `;
+    historyTbody.appendChild(tr);
+  });
+}
+
+function buildHistoryCsv(entry) {
+  const escape = (v) => {
+    const s = v == null ? "" : String(v);
+    return /[",;\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const sep = ";";
+  const lines = [];
+  const sportLabel = sportsConfig?.[entry.sportId]?.label || entry.sportId.toUpperCase();
+  const teams = sportsConfig?.[entry.sportId]?.teams || [];
+  const teamLabel = (id) => teams.find((t) => t.id === id)?.label || id || "";
+
+  lines.push(`Break Overlay - ${sportLabel} - ${entry.scope}`);
+  lines.push(["Date", escape(formatHistoryDate(entry.createdAt))].join(sep));
+  lines.push("");
+
+  if (entry.scope === "tier") {
+    lines.push(["Spot", "Participant", "Tier 1", "Tier 2", "Tier 3"].map(escape).join(sep));
+    const bySlot = new Map();
+    entry.state.participants.forEach((p) => { if (p.slotNumber) bySlot.set(p.slotNumber, p); });
+    for (let n = 1; n <= 10; n += 1) {
+      const p = bySlot.get(n);
+      lines.push([n, p?.name || "", teamLabel(p?.teams?.[1]), teamLabel(p?.teams?.[2]), teamLabel(p?.teams?.[3])].map(escape).join(sep));
+    }
+  } else if (entry.scope === "draft") {
+    lines.push(["Spot", "Participant", "Pick 1", "Pick 2", "Pick 3"].map(escape).join(sep));
+    entry.state.participants.forEach((p, i) => {
+      lines.push([i + 1, p.name || "", teamLabel(p.teams?.[0]), teamLabel(p.teams?.[1]), teamLabel(p.teams?.[2])].map(escape).join(sep));
+    });
+  }
+  return lines.join("\r\n");
+}
+
+function downloadHistoryCsv(entry) {
+  const csv = buildHistoryCsv(entry);
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${entry.id}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function openHistoryModal(entry) {
+  const sportLabel = sportsConfig?.[entry.sportId]?.label || entry.sportId.toUpperCase();
+  const teams = sportsConfig?.[entry.sportId]?.teams || [];
+  const teamLogo = (id) => teams.find((t) => t.id === id)?.logo || "";
+  const teamLabel = (id) => teams.find((t) => t.id === id)?.label || id || "";
+
+  historyModalEyebrow.textContent = `${formatHistoryDate(entry.createdAt)} — ${sportLabel}`;
+  historyModalTitle.textContent = entry.scope === "tier" ? "Tier Break" : entry.scope === "draft" ? "Draft" : entry.scope;
+
+  const grid = document.createElement("div");
+  grid.className = "history-modal__grid";
+
+  if (entry.scope === "tier") {
+    const bySlot = new Map();
+    entry.state.participants.forEach((p) => { if (p.slotNumber) bySlot.set(p.slotNumber, p); });
+    for (let n = 1; n <= 10; n += 1) {
+      const p = bySlot.get(n);
+      const card = document.createElement("article");
+      card.className = "recap-card";
+      const teamsHtml = [1, 2, 3].map((tier) => {
+        const tid = p?.teams?.[tier];
+        if (tid) return `<div class="recap-card__team"><img src="${teamLogo(tid)}" alt="${teamLabel(tid)}" /></div>`;
+        return `<div class="recap-card__team recap-card__team--empty"></div>`;
+      }).join("");
+      card.innerHTML = `
+        <div class="recap-card__head"><span class="recap-card__spot">Spot ${n}</span></div>
+        <div class="recap-card__player">${p?.name || "—"}</div>
+        <div class="recap-card__teams" style="margin-top:10px">${teamsHtml}</div>
+      `;
+      grid.appendChild(card);
+    }
+  } else if (entry.scope === "draft") {
+    entry.state.participants.forEach((p, i) => {
+      const card = document.createElement("article");
+      card.className = "recap-card";
+      const teamsHtml = [0, 1, 2].map((idx) => {
+        const tid = p.teams?.[idx];
+        if (tid) return `<div class="recap-card__team"><img src="${teamLogo(tid)}" alt="${teamLabel(tid)}" /></div>`;
+        return `<div class="recap-card__team recap-card__team--empty"></div>`;
+      }).join("");
+      card.innerHTML = `
+        <div class="recap-card__head"><span class="recap-card__spot">Spot ${i + 1}</span></div>
+        <div class="recap-card__player">${p.name}</div>
+        <div class="recap-card__teams" style="margin-top:10px">${teamsHtml}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  historyModalBody.replaceChildren(grid);
+  historyModal.hidden = false;
+}
+
+function closeHistoryModal() {
+  historyModal.hidden = true;
+  historyModalBody.replaceChildren();
+}
+
+historyTbody?.addEventListener("click", async (event) => {
+  const btn = event.target.closest("button[data-action]");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if (action === "delete") {
+    if (!window.confirm("Supprimer ce break archive ?")) return;
+    try {
+      await deleteHistoryEntry(id);
+      await renderHistory();
+    } catch (err) {
+      window.alert("Erreur: " + (err?.message || err));
+    }
+    return;
+  }
+  try {
+    const entry = await fetchHistoryEntry(id);
+    if (action === "view") openHistoryModal(entry);
+    else if (action === "csv") downloadHistoryCsv(entry);
+  } catch (err) {
+    window.alert("Erreur: " + (err?.message || err));
+  }
+});
+
+historyModalClose?.addEventListener("click", closeHistoryModal);
+historyModal?.addEventListener("click", (event) => {
+  if (event.target.dataset.closeModal !== undefined) closeHistoryModal();
+});
+
 void refreshAdmin();
+void renderHistory();
+// Rafraichit l'historique toutes les 30s pour capter les nouveaux breaks termines
+setInterval(() => { void renderHistory(); }, 30000);

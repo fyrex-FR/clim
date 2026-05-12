@@ -10,6 +10,8 @@ const staticDir = process.env.BREAK_STATIC_DIR || __dirname;
 const dataDir = process.env.BREAK_DATA_DIR || __dirname;
 const rootDir = staticDir; // alias pour le service des fichiers statiques
 const sessionsDir = path.join(dataDir, "sessions");
+const historyDir = path.join(dataDir, "history");
+const HISTORY_MAX = 100;
 const activeSessionsFile = path.join(dataDir, "active-sessions.json");
 const configFiles = {
   // Configs read-only (sports/modes embarques avec l'app)
@@ -76,12 +78,15 @@ function createDefaultDraftState() {
       teams: [],
     })),
     currentPick: 0,
+    recapVisible: false,
   };
 }
 
 function createDefaultTierState() {
   return {
     templateId: "nba-standard",
+    started: false,
+    recapVisible: false,
     participants: Array.from({ length: 10 }, (_, index) => ({
       id: `player-${index + 1}`,
       name: `Spot ${index + 1}`,
@@ -147,6 +152,7 @@ function sanitizeState(scope, candidate) {
     return {
       participants,
       currentPick: Math.max(0, Math.min(currentPick, 30)),
+      recapVisible: candidate?.recapVisible === true,
     };
   }
 
@@ -176,6 +182,8 @@ function sanitizeState(scope, candidate) {
         typeof candidate?.templateId === "string" && candidate.templateId.trim()
           ? candidate.templateId.trim()
           : defaultState.templateId,
+      started: candidate?.started === true,
+      recapVisible: candidate?.recapVisible === true,
       participants,
       history,
     };
@@ -290,6 +298,60 @@ async function readState(scope, sessionId) {
   return sanitizeState(scope, JSON.parse(content));
 }
 
+function isStateComplete(scope, state) {
+  if (scope === "tier") {
+    return state.participants.every((p) =>
+      p.slotNumber && p.teams && p.teams[1] && p.teams[2] && p.teams[3]
+    );
+  }
+  if (scope === "draft") {
+    return Number(state.currentPick) >= 30;
+  }
+  return false;
+}
+
+async function ensureHistoryDir() {
+  await fsp.mkdir(historyDir, { recursive: true });
+}
+
+async function maybeSnapshotHistory(scope, sessionId, state) {
+  if (!isStateComplete(scope, state)) return;
+  // Le sport est encode dans sessionId (sport-nfl, sport-ucc, sinon "default" = nba)
+  const sportId = sessionId.startsWith("sport-") ? sessionId.slice("sport-".length) : "nba";
+  // Signature stable pour eviter de re-snapshotter le meme break a chaque save
+  const signature = JSON.stringify({ scope, sportId, participants: state.participants });
+  await ensureHistoryDir();
+  const existing = await fsp.readdir(historyDir).catch(() => []);
+  // Si un fichier recent (<24h) a la meme signature, on skip
+  for (const f of existing) {
+    if (!f.startsWith(`${sportId}-${scope}-`)) continue;
+    try {
+      const content = await fsp.readFile(path.join(historyDir, f), "utf8");
+      const parsed = JSON.parse(content);
+      if (parsed.signature === signature) return;
+    } catch { /* ignore */ }
+  }
+  // Nouveau snapshot
+  const stamp = new Date().toISOString().replace(/[:T]/g, "-").slice(0, 19);
+  const id = `${sportId}-${scope}-${stamp}`;
+  const payload = {
+    id,
+    scope,
+    sportId,
+    sessionId,
+    createdAt: new Date().toISOString(),
+    signature,
+    state,
+  };
+  await fsp.writeFile(path.join(historyDir, `${id}.json`), JSON.stringify(payload, null, 2) + "\n");
+  // GC : garde les HISTORY_MAX plus recents
+  const all = (await fsp.readdir(historyDir)).filter((f) => f.endsWith(".json")).sort();
+  if (all.length > HISTORY_MAX) {
+    const toDrop = all.slice(0, all.length - HISTORY_MAX);
+    await Promise.all(toDrop.map((f) => fsp.unlink(path.join(historyDir, f)).catch(() => {})));
+  }
+}
+
 async function writeState(scope, sessionId, nextState) {
   const stateFile = getStateFile(scope, sessionId);
   const cleanState = sanitizeState(scope, nextState);
@@ -298,6 +360,8 @@ async function writeState(scope, sessionId, nextState) {
   }
   await fsp.writeFile(stateFile, JSON.stringify(cleanState, null, 2) + "\n");
   broadcastState(scope, sessionId, cleanState);
+  // Snapshot historique si l'etat vient d'atteindre la completion
+  void maybeSnapshotHistory(scope, sessionId, cleanState);
   return cleanState;
 }
 
@@ -407,6 +471,58 @@ const server = http.createServer(async (request, response) => {
       sendJson(response, 500, { error: "Unable to delete session" });
     }
     return;
+  }
+
+  // === History API ===
+  if (request.method === "GET" && url.pathname === "/api/history") {
+    try {
+      await ensureHistoryDir();
+      const files = (await fsp.readdir(historyDir)).filter((f) => f.endsWith(".json"));
+      const entries = await Promise.all(files.map(async (f) => {
+        try {
+          const content = await fsp.readFile(path.join(historyDir, f), "utf8");
+          const parsed = JSON.parse(content);
+          return {
+            id: parsed.id,
+            scope: parsed.scope,
+            sportId: parsed.sportId,
+            createdAt: parsed.createdAt,
+          };
+        } catch { return null; }
+      }));
+      sendJson(response, 200, entries.filter(Boolean).sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+    } catch {
+      sendJson(response, 500, { error: "Unable to read history" });
+    }
+    return;
+  }
+
+  const historyDetailMatch = url.pathname.match(/^\/api\/history\/([a-zA-Z0-9_.-]+)$/);
+  if (historyDetailMatch) {
+    const id = historyDetailMatch[1];
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+      sendJson(response, 400, { error: "Invalid id" });
+      return;
+    }
+    const file = path.join(historyDir, `${id}.json`);
+    if (request.method === "GET") {
+      try {
+        const content = await fsp.readFile(file, "utf8");
+        sendJson(response, 200, JSON.parse(content));
+      } catch {
+        sendJson(response, 404, { error: "Not found" });
+      }
+      return;
+    }
+    if (request.method === "DELETE") {
+      try {
+        await fsp.unlink(file);
+        sendJson(response, 200, { ok: true });
+      } catch {
+        sendJson(response, 404, { error: "Not found" });
+      }
+      return;
+    }
   }
 
   if (request.method === "GET" && url.pathname === "/api/config/sports") {

@@ -173,6 +173,7 @@ function applyStateDiff(previousState, nextState) {
   const previousRemoved = new Set(previousState.removed);
   const nextRemoved = new Set(nextState.removed);
   const changedTeamIds = new Set();
+  let newlyRemoved = null;
 
   previousRemoved.forEach((teamId) => {
     if (!nextRemoved.has(teamId)) {
@@ -183,10 +184,63 @@ function applyStateDiff(previousState, nextState) {
   nextRemoved.forEach((teamId) => {
     if (!previousRemoved.has(teamId)) {
       changedTeamIds.add(teamId);
+      if (!newlyRemoved) newlyRemoved = teamId;
     }
   });
 
   changedTeamIds.forEach((teamId) => updateTile(teamId));
+
+  // Cinematic plein ecran en mode display quand une nouvelle equipe est masquee
+  if (mode === "display" && newlyRemoved) {
+    const team = teams.find((t) => t.id === newlyRemoved);
+    if (team) {
+      const remainingAfter = teams.length - nextRemoved.size;
+      void playCinematic({
+        eyebrow: `${remainingAfter} restantes`,
+        logo: team.logo,
+        label: team.label,
+        player: "",
+      });
+    }
+  }
+}
+
+// Animation cinematique plein ecran. Voir tokens.css pour le style.
+function playCinematic({ eyebrow = "", logo = "", label = "", player = "", duration = 3500 } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.querySelector("#cinematic");
+    if (!overlay) { resolve(); return; }
+    const eyebrowEl = overlay.querySelector("#cinematic-eyebrow");
+    const logoEl = overlay.querySelector("#cinematic-logo");
+    const labelEl = overlay.querySelector("#cinematic-label");
+    const playerEl = overlay.querySelector("#cinematic-player");
+
+    eyebrowEl.textContent = eyebrow;
+    labelEl.textContent = label;
+    playerEl.textContent = player;
+    if (logo) {
+      logoEl.src = logo;
+      logoEl.alt = label;
+      logoEl.hidden = false;
+    } else {
+      logoEl.hidden = true;
+      logoEl.removeAttribute("src");
+    }
+
+    overlay.removeAttribute("data-state");
+    overlay.hidden = true;
+    void overlay.offsetWidth;
+    overlay.hidden = false;
+
+    setTimeout(() => {
+      overlay.dataset.state = "leaving";
+      setTimeout(() => {
+        overlay.hidden = true;
+        overlay.removeAttribute("data-state");
+        resolve();
+      }, 400);
+    }, duration - 400);
+  });
 }
 
 function renderControls() {
