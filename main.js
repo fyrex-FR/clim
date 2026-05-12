@@ -137,6 +137,41 @@ async function checkUpdatesManualMac() {
   }
 }
 
+// Affiche une barre de progression d'update en haut de toutes les fenetres ouvertes.
+// On injecte du JS dans chaque webContents (admin + display ouvertes en plus).
+function injectUpdateProgress(percent) {
+  const js = `(() => {
+    let bar = document.getElementById('__update_progress__');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = '__update_progress__';
+      bar.className = 'update-progress';
+      bar.innerHTML =
+        '<span class="update-progress__label">Telechargement de la mise a jour</span>' +
+        '<span class="update-progress__track"><span class="update-progress__fill"></span></span>' +
+        '<span class="update-progress__percent">0%</span>';
+      document.body.appendChild(bar);
+    }
+    const fill = bar.querySelector('.update-progress__fill');
+    const pct = bar.querySelector('.update-progress__percent');
+    if (fill) fill.style.width = ${percent} + '%';
+    if (pct) pct.textContent = ${percent} + '%';
+  })();`;
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.executeJavaScript(js).catch(() => {});
+  }
+}
+
+function clearUpdateProgress() {
+  const js = `(() => {
+    const bar = document.getElementById('__update_progress__');
+    if (bar) bar.remove();
+  })();`;
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.executeJavaScript(js).catch(() => {});
+  }
+}
+
 function setupAutoUpdate() {
   if (!app.isPackaged) return;
 
@@ -162,13 +197,21 @@ function setupAutoUpdate() {
       cancelId: 1,
     });
     if (response === 0) {
+      injectUpdateProgress(0);
       autoUpdater.downloadUpdate().catch((err) => {
+        clearUpdateProgress();
         dialog.showErrorBox("Erreur de telechargement", String(err?.message || err));
       });
     }
   });
 
+  autoUpdater.on("download-progress", (progress) => {
+    const percent = Math.min(100, Math.round(progress?.percent || 0));
+    injectUpdateProgress(percent);
+  });
+
   autoUpdater.on("update-downloaded", async (info) => {
+    clearUpdateProgress();
     const { response } = await dialog.showMessageBox(mainWindow, {
       type: "info",
       title: "Mise a jour prete",
@@ -190,6 +233,7 @@ function setupAutoUpdate() {
   });
 
   autoUpdater.on("error", (err) => {
+    clearUpdateProgress();
     log.error("autoUpdater error:", err?.message || err);
   });
 
