@@ -89,13 +89,66 @@ function createMainWindow() {
 }
 
 // Verifie les mises a jour via GitHub Releases.
-// - Au demarrage : check + popup si update dispo.
-// - L'utilisateur accepte : download silencieux + popup pour redemarrer quand pret.
-// - En dev (non-packaged) : on ne fait rien (electron-updater plante sans signature/manifest).
+// - Windows : flux complet (download + install automatique au redemarrage).
+// - Mac : check manuel (popup qui ouvre la page de release GitHub, l'utilisateur
+//         telecharge le .dmg et le glisse dans /Applications). Pas de auto-install
+//         car l'app n'est pas signee Apple Developer.
+// - Dev (non-packaged) : on ne fait rien.
+
+const RELEASE_PAGE_BASE = "https://github.com/fyrex-FR/clim/releases/latest";
+
+async function checkUpdatesManualMac() {
+  try {
+    // On lit le manifeste latest-mac.yml pour comparer les versions.
+    const res = await fetch("https://github.com/fyrex-FR/clim/releases/latest/download/latest-mac.yml");
+    if (!res.ok) {
+      log.warn("Mac update check: HTTP", res.status);
+      return;
+    }
+    const text = await res.text();
+    const versionMatch = text.match(/^version:\s*([\d.]+)/m);
+    if (!versionMatch) return;
+    const remoteVersion = versionMatch[1];
+    const currentVersion = app.getVersion();
+    if (remoteVersion === currentVersion) {
+      log.info(`Mac update check: already on latest ${currentVersion}`);
+      return;
+    }
+    // Comparaison naive (ok pour semver simple x.y.z)
+    if (remoteVersion < currentVersion) {
+      log.info(`Mac update check: remote ${remoteVersion} < current ${currentVersion}, skip`);
+      return;
+    }
+    log.info(`Mac update available: ${currentVersion} -> ${remoteVersion}`);
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "Mise a jour disponible",
+      message: `Une nouvelle version (${remoteVersion}) est disponible.`,
+      detail: "Sur Mac, l'installation se fait manuellement : telecharge le .dmg, ouvre-le et glisse l'app dans /Applications pour remplacer l'ancienne.",
+      buttons: ["Ouvrir la page de telechargement", "Plus tard"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) {
+      shell.openExternal(RELEASE_PAGE_BASE);
+    }
+  } catch (err) {
+    log.error("Mac update check failed:", err?.message || err);
+  }
+}
+
 function setupAutoUpdate() {
   if (!app.isPackaged) return;
 
-  autoUpdater.autoDownload = false; // on demande avant de download
+  if (process.platform === "darwin") {
+    // Mac : check manuel
+    checkUpdatesManualMac();
+    setInterval(checkUpdatesManualMac, 6 * 60 * 60 * 1000);
+    return;
+  }
+
+  // Windows (et Linux le cas echeant) : flux electron-updater natif
+  autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on("update-available", async (info) => {
@@ -140,7 +193,6 @@ function setupAutoUpdate() {
     log.error("autoUpdater error:", err?.message || err);
   });
 
-  // Check tout de suite, puis toutes les 6h tant que l'app tourne
   autoUpdater.checkForUpdates().catch(() => {});
   setInterval(() => {
     autoUpdater.checkForUpdates().catch(() => {});
