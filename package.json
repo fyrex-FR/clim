@@ -48,6 +48,7 @@
       "logo/**",
       "logo-nfl/**",
       "logo-ucc/**",
+      "flags/**",
       "package.json"
     ],
     "extraResources": [

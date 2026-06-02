@@ -41,6 +41,11 @@ const contentTypes = {
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
+  ".svg": "image/svg+xml; charset=utf-8",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
 };
 
 function sendJson(response, statusCode, payload) {
@@ -438,7 +443,11 @@ function sanitizeSportPayload(raw) {
     seen.add(t.id);
     dedup.push(t);
   }
-  return { id, label, teams: dedup };
+  // logoStyle optionnel : "round" rend les logos en cercles (drapeaux par ex)
+  const logoStyle = raw.logoStyle === "round" ? "round" : undefined;
+  const result = { id, label, teams: dedup };
+  if (logoStyle) result.logoStyle = logoStyle;
+  return result;
 }
 
 async function serveFile(response, pathname) {

@@ -4,16 +4,16 @@
 // Sinon, on isole le state du sport dans sessions/sport-<id>-<scope>.json.
 
 (function () {
-  const SUPPORTED = ["nba", "nfl", "ucc"];
+  // Sports built-in qui utilisent le state root (state.json sans session).
+  // Les autres (sports custom comme nfl/ucc/mlb/donruss-wc) utilisent session=sport-<id>.
+  const ROOT_SPORT = "nba";
   const params = new URLSearchParams(window.location.search);
-  const requested = (params.get("sport") || "nba").toLowerCase();
-  const sportId = SUPPORTED.includes(requested) ? requested : "nba";
+  const sportId = (params.get("sport") || ROOT_SPORT).toLowerCase().trim() || ROOT_SPORT;
 
   function getSessionId() {
-    // ?session= explicite l'emporte toujours
     const explicit = params.get("session");
     if (explicit) return explicit;
-    if (sportId === "nba") return null; // null => le serveur tape sur state.json root
+    if (sportId === ROOT_SPORT) return null;
     return `sport-${sportId}`;
   }
 
@@ -33,12 +33,15 @@
     const sports = await response.json();
     const sport = sports[sportId];
     if (!sport) throw new Error(`Sport inconnu: ${sportId}`);
-    return { id: sportId, label: sport.label, teams: sport.teams, all: sports };
+    // Applique la classe "sport-round" sur le body si demande par le sport
+    if (sport.logoStyle === "round") {
+      document.body.classList.add("sport-round");
+    }
+    return { id: sportId, label: sport.label, teams: sport.teams, logoStyle: sport.logoStyle, all: sports };
   }
 
   window.AppSport = {
     id: sportId,
-    isSupported: (s) => SUPPORTED.includes(s),
     getSessionId,
     buildApiUrl,
     loadSport,

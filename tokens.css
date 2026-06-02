@@ -389,6 +389,26 @@ body.recap-on .draft-toolbar,
 body.recap-on .cinematic { display: none !important; }
 body.recap-on { background: #060a12; }
 
+/* ===================== Logos style "round" (drapeaux, etc.) ===================== */
+/* Active uniquement quand le sport courant a logoStyle: "round" dans sports.json */
+body.sport-round .team-tile img,
+body.sport-round .slot-card__team img,
+body.sport-round .player-card__slot img,
+body.sport-round .recap-card__team img,
+body.sport-round .cinematic__logo,
+body.sport-round .draw-reveal__logo,
+body.sport-round .tier-column .team-tile img,
+body.sport-round .sport-editor__logo {
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff; /* fond blanc pour les drapeaux qui ont des bords transparents */
+  aspect-ratio: 1 / 1;
+}
+/* La cinematic est plus grosse, on garde le glow doré derrière */
+body.sport-round .cinematic__logo {
+  background: rgba(255, 255, 255, 0.92);
+}
+
 /* ===================== Update progress bar (auto-injectee en haut de la fenetre) ===================== */
 .update-progress {
   position: fixed;

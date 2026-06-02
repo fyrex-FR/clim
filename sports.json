@@ -108,5 +108,40 @@
       { "id": "ssc-napoli", "label": "Napoli", "logo": "./logo-ucc/ssc-napoli.png" },
       { "id": "tottenham-hotspur", "label": "Tottenham", "logo": "./logo-ucc/tottenham-hotspur.png" }
     ]
+  },
+  "donruss-wc": {
+    "label": "Donruss World Cup Panini",
+    "logoStyle": "round",
+    "teams": [
+      { "id": "germany", "label": "Germany", "logo": "./flags/de.svg" },
+      { "id": "argentina", "label": "Argentina", "logo": "./flags/ar.svg" },
+      { "id": "brazil", "label": "Brazil", "logo": "./flags/br.svg" },
+      { "id": "france", "label": "France", "logo": "./flags/fr.svg" },
+      { "id": "england", "label": "England", "logo": "./flags/gb-eng.svg" },
+      { "id": "spain", "label": "Spain", "logo": "./flags/es.svg" },
+      { "id": "italy", "label": "Italy", "logo": "./flags/it.svg" },
+      { "id": "portugal", "label": "Portugal", "logo": "./flags/pt.svg" },
+      { "id": "united-states", "label": "United States", "logo": "./flags/us.svg" },
+      { "id": "mexico", "label": "Mexico", "logo": "./flags/mx.svg" },
+      { "id": "sweden", "label": "Sweden", "logo": "./flags/se.svg" },
+      { "id": "norway", "label": "Norway", "logo": "./flags/no.svg" },
+      { "id": "croatia", "label": "Croatia", "logo": "./flags/hr.svg" },
+      { "id": "poland", "label": "Poland", "logo": "./flags/pl.svg" },
+      { "id": "uruguay", "label": "Uruguay", "logo": "./flags/uy.svg" },
+      { "id": "morocco", "label": "Morocco", "logo": "./flags/ma.svg" },
+      { "id": "colombia", "label": "Colombia", "logo": "./flags/co.svg" },
+      { "id": "serbia", "label": "Serbia", "logo": "./flags/rs.svg" },
+      { "id": "switzerland", "label": "Switzerland", "logo": "./flags/ch.svg" },
+      { "id": "senegal", "label": "Senegal", "logo": "./flags/sn.svg" },
+      { "id": "nigeria", "label": "Nigeria", "logo": "./flags/ng.svg" },
+      { "id": "northern-ireland", "label": "Northern Ireland", "logo": "./flags/gb-nir.svg" },
+      { "id": "ghana", "label": "Ghana", "logo": "./flags/gh.svg" },
+      { "id": "scotland", "label": "Scotland", "logo": "./flags/gb-sct.svg" },
+      { "id": "republic-of-ireland", "label": "Republic of Ireland", "logo": "./flags/ie.svg" },
+      { "id": "cymru", "label": "Cymru", "logo": "./flags/gb-wls.svg" },
+      { "id": "korea-republic", "label": "Korea Republic", "logo": "./flags/kr.svg" },
+      { "id": "paraguay", "label": "Paraguay", "logo": "./flags/py.svg" },
+      { "id": "honduras", "label": "Honduras", "logo": "./flags/hn.svg" }
+    ]
   }
 }
