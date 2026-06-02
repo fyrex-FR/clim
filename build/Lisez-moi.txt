@@ -1,0 +1,16 @@
+BREAK OVERLAY - Installation
+============================
+
+  Installation en 3 etapes :
+
+  1. Glisse "Break Overlay.app" dans le dossier "Applications".
+
+  2. Double-clic sur "fix-quarantine.command" pour autoriser
+     macOS a lancer l'app (anti-piege "App endommagee").
+     Si macOS bloque le script : clic-droit dessus -> "Ouvrir".
+
+  3. Lance "Break Overlay" depuis Applications ou ton Launchpad.
+
+  ✓ A la prochaine mise a jour, tu seras notifie automatiquement.
+
+  Probleme ? Va sur : https://github.com/fyrex-FR/clim/issues
