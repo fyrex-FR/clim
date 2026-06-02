@@ -381,6 +381,26 @@ h1 {
   margin-bottom: 12px;
 }
 
+/* === Historique pagination === */
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+.history-page-info {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  min-width: 110px;
+  text-align: center;
+}
+
 /* === Historique === */
 .history-empty {
   padding: 20px;

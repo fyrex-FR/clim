@@ -71,7 +71,8 @@ body:not(.app-ready) .tier-shell { opacity: 0; }
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(145deg, rgba(255, 240, 188, 0.36), rgba(231, 184, 92, 0.12) 36%, rgba(255, 255, 255, 0.04) 70%);
+  background: linear-gradient(145deg, var(--accent-hi, rgba(255, 240, 188, 0.6)) 0%, var(--accent, rgba(231, 184, 92, 0.3)) 30%, rgba(255, 255, 255, 0.04) 70%);
+  opacity: 0.5;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;
   pointer-events: none;
@@ -222,10 +223,8 @@ body:not(.app-ready) .tier-shell { opacity: 0; }
   50%      { transform: scale(1.015); }
 }
 @keyframes draw-reveal-winner {
-  0%   { transform: scale(0.96); }
-  25%  { transform: scale(1.12); }
-  50%  { transform: scale(0.98); }
-  70%  { transform: scale(1.06); }
+  0%   { transform: scale(0.92); }
+  50%  { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
 @keyframes draw-reveal-logo-flip {
@@ -296,24 +295,22 @@ body:not(.app-ready) .tier-shell { opacity: 0; }
   padding: 5px;
 }
 .slot-card__team--fresh {
-  border-color: rgba(245, 195, 94, 0.6) !important;
-  background: rgba(231, 184, 92, 0.12) !important;
-  animation: slot-team-glow 1200ms ease-out 1;
+  border-color: var(--accent, rgba(245, 195, 94, 0.6)) !important;
+  background: var(--accent-soft, rgba(231, 184, 92, 0.12)) !important;
+  animation: slot-team-glow 1400ms ease-out 1;
 }
 .slot-card__team--fresh img {
-  animation: slot-team-flip 900ms cubic-bezier(0.22, 1, 0.36, 1) 1;
-  transform-style: preserve-3d;
+  animation: slot-team-slidein 700ms cubic-bezier(0.22, 1, 0.36, 1) 1;
 }
-@keyframes slot-team-flip {
-  0%   { transform: rotateY(0deg) scale(0.3); opacity: 0; }
-  40%  { transform: rotateY(360deg) scale(1.2); opacity: 1; }
-  70%  { transform: rotateY(720deg) scale(0.95); }
-  100% { transform: rotateY(720deg) scale(1); }
+@keyframes slot-team-slidein {
+  0%   { transform: translateY(40%) scale(0.6); opacity: 0; }
+  60%  { transform: translateY(-4%)  scale(1.08); opacity: 1; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
 }
 @keyframes slot-team-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(245, 195, 94, 0.55); }
-  50%  { box-shadow: 0 0 0 6px rgba(245, 195, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(245, 195, 94, 0); }
+  0%   { box-shadow: 0 0 0 0 var(--accent-soft, rgba(245, 195, 94, 0.55)); }
+  60%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 .participants-panel { margin-top: 16px; }
 .participants-list {
@@ -393,9 +390,34 @@ body:not(.app-ready) .tier-shell { opacity: 0; }
 .team-tile--taken img { filter: grayscale(1) saturate(0.1); }
 body.display-mode .tier-toolbar,
 body.display-mode .participants-panel { display: none; }
-body.display-mode .tier-app { min-height: auto; padding: 0; }
-body.display-mode .tier-shell,
-body.display-mode .tier-board { width: 1220px; }
+body.display-mode .tier-app {
+  min-height: 100vh;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fond sombre + effet ambient glow coloré par le sport */
+  background:
+    radial-gradient(ellipse at 20% 0%, var(--accent-soft, rgba(231, 184, 92, 0.18)), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, var(--accent-soft, rgba(231, 184, 92, 0.12)), transparent 55%),
+    linear-gradient(160deg, var(--surface-0, #0a121f), var(--surface-1, #131c2e));
+  animation: ambient-pulse 12s ease-in-out infinite;
+}
+body.display-mode .tier-shell {
+  width: 100%;
+  max-width: 1860px;
+  padding: 2vh 2vw;
+  box-sizing: border-box;
+}
+body.display-mode .tier-board {
+  width: 100%;
+  padding: clamp(16px, 1.8vw, 28px);
+}
+
+@keyframes ambient-pulse {
+  0%, 100% { background-size: 100% 100%, 100% 100%, 100% 100%; filter: brightness(1); }
+  50%      { background-size: 110% 110%, 115% 115%, 100% 100%; filter: brightness(1.08); }
+}
 body.streamer-mode .draw-stage { display: none; }
 body.display-mode .draw-stage { display: block; }
 body.display-mode.phase-spots .tiers-panel { display: none; }
@@ -439,17 +461,66 @@ body.display-mode.phase-waiting .waiting-banner {
   font-size: 1rem;
 }
 
-/* Phase waiting display : on cache stage/spots, on agrandit les tableaux d'equipes */
+/* Phase waiting display : 3 tiers côte à côte, compact, logos petits */
 body.display-mode.phase-waiting .draw-stage,
 body.display-mode.phase-waiting .spots-panel { display: none; }
 body.display-mode.phase-waiting .tiers-panel { margin-top: 0; }
-body.display-mode.phase-waiting .tier-column { padding: 18px; }
-body.display-mode.phase-waiting .tier-column__head strong { font-size: 1.5rem; }
-body.display-mode.phase-waiting .tier-column__teams {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+body.display-mode.phase-waiting .tiers-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
-body.display-mode.phase-waiting .team-tile { aspect-ratio: 1 / 1; }
+body.display-mode.phase-waiting .tier-column {
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(145deg, rgba(20, 30, 48, 0.95), rgba(10, 16, 26, 0.95));
+  border: 1px solid var(--border-soft);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: tier-waiting-in 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+body.display-mode.phase-waiting .tier-column:nth-child(1) { animation-delay: 60ms; }
+body.display-mode.phase-waiting .tier-column:nth-child(2) { animation-delay: 160ms; }
+body.display-mode.phase-waiting .tier-column:nth-child(3) { animation-delay: 260ms; }
+
+body.display-mode.phase-waiting .tier-column__head {
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+body.display-mode.phase-waiting .tier-column__head strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+/* Couleurs médaille par tier */
+body.display-mode.phase-waiting .tier-column:nth-child(1) .tier-column__head strong { color: #fde68a; }
+body.display-mode.phase-waiting .tier-column:nth-child(2) .tier-column__head strong { color: #e5e7eb; }
+body.display-mode.phase-waiting .tier-column:nth-child(3) .tier-column__head strong { color: #fdba74; }
+
+/* Grille 5 colonnes (10 équipes -> 2 rangées de 5) avec logos petits */
+body.display-mode.phase-waiting .tier-column__teams {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+body.display-mode.phase-waiting .team-tile {
+  aspect-ratio: 1 / 1;
+  padding: 2px;
+  background: transparent;
+  border: none;
+}
+
+body.display-mode.phase-waiting .tiers-panel > .panel-head { display: none; }
+
+@keyframes tier-waiting-in {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 body.streamer-mode.phase-waiting .draw-stage { display: none; }
 body.display-mode .participant-row,
 body.display-mode .slot-card,

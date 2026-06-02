@@ -15,6 +15,7 @@ const hideRecapButton = document.querySelector("#hide-recap");
 const undoButton = document.querySelector("#undo");
 const resetButton = document.querySelector("#reset");
 const exportCsvButton = document.querySelector("#export-csv");
+const clearParticipantsButton = document.querySelector("#clear-participants");
 const spotsSummary = document.querySelector("#spots-summary");
 const teamsSummary = document.querySelector("#teams-summary");
 const slotsGrid = document.querySelector("#slots-grid");
@@ -321,8 +322,7 @@ function buildTierColumn(tierNumber) {
   column.dataset.tierNumber = String(tierNumber);
   column.innerHTML = `
     <div class="tier-column__head">
-      <span>Tier ${tierNumber}</span>
-      <strong>${template?.label || ""}</strong>
+      <strong>Tier ${tierNumber}</strong>
     </div>
     <div class="tier-column__teams"></div>
   `;
@@ -641,7 +641,8 @@ function updateToolbar() {
   teamsSummary.textContent = `${30 - assignedTeams} equipes dispo`;
 
   const teamDrawStarted = assignedTeams > 0;
-  templateSelect.disabled = mode !== "streamer" || isSaving || isAnimating || teamDrawStarted;
+  // Lock du template dès que le break a démarré (pour éviter de changer en plein milieu)
+  templateSelect.disabled = mode !== "streamer" || isSaving || isAnimating || state.started;
   drawNextButton.disabled = mode !== "streamer" || isSaving || isAnimating || phase === "complete" || phase === "waiting";
   drawNextButton.hidden = phase === "waiting" || phase === "complete";
   if (startDrawButton) {
@@ -661,6 +662,10 @@ function updateToolbar() {
   if (exportCsvButton) {
     exportCsvButton.disabled = mode !== "streamer";
     exportCsvButton.hidden = mode !== "streamer";
+  }
+  if (clearParticipantsButton) {
+    clearParticipantsButton.hidden = mode !== "streamer";
+    clearParticipantsButton.disabled = mode !== "streamer" || isSaving || isAnimating;
   }
 }
 
@@ -927,6 +932,18 @@ function resetTierBreak() {
   void saveState();
 }
 
+function clearParticipants() {
+  if (mode !== "streamer" || isSaving || isAnimating) return;
+  if (state.started) {
+    if (!window.confirm("Le break est en cours. Vider tous les noms quand meme ?")) return;
+  }
+  state.participants.forEach((player, index) => {
+    player.name = `Spot ${index + 1}`;
+  });
+  render(false);
+  void saveState();
+}
+
 function startDraw() {
   if (mode !== "streamer" || isSaving || isAnimating || state.started) {
     return;
@@ -1114,6 +1131,7 @@ hideRecapButton?.addEventListener("click", hideRecap);
 undoButton.addEventListener("click", undoLast);
 resetButton.addEventListener("click", resetTierBreak);
 exportCsvButton?.addEventListener("click", exportCsv);
+clearParticipantsButton?.addEventListener("click", clearParticipants);
 templateSelect.addEventListener("change", handleTemplateChange);
 
 window.addEventListener("keydown", (event) => {

@@ -437,6 +437,8 @@ async function copyDisplayUrl(pathname, button) {
   if (selectedSport !== "nba") {
     url.searchParams.set("sport", selectedSport);
   }
+  // Flag obs=1 → fond semi-transparent pour source navigateur OBS
+  url.searchParams.set("obs", "1");
   await navigator.clipboard.writeText(url.toString());
   const previousLabel = button.textContent;
   button.textContent = "Copie";
@@ -1040,11 +1042,19 @@ if (sportEditorDropzone) {
 const historyTable = document.querySelector("#history-table");
 const historyTbody = document.querySelector("#history-tbody");
 const historyEmpty = document.querySelector("#history-empty");
+const historyPagination = document.querySelector("#history-pagination");
+const historyPageInfo = document.querySelector("#history-page-info");
+const historyPrevBtn = document.querySelector("#history-prev");
+const historyNextBtn = document.querySelector("#history-next");
 const historyModal = document.querySelector("#history-modal");
 const historyModalTitle = document.querySelector("#history-modal-title");
 const historyModalEyebrow = document.querySelector("#history-modal-eyebrow");
 const historyModalBody = document.querySelector("#history-modal-body");
 const historyModalClose = document.querySelector("#history-modal-close");
+
+const HISTORY_PAGE_SIZE = 10;
+let historyEntries = [];
+let historyPage = 0;
 
 function formatHistoryDate(iso) {
   try {
@@ -1072,22 +1082,34 @@ async function deleteHistoryEntry(id) {
 
 async function renderHistory() {
   if (!historyTbody) return;
-  let entries = [];
   try {
-    entries = await fetchHistory();
+    historyEntries = await fetchHistory();
   } catch (err) {
     console.error(err);
-    return;
+    historyEntries = [];
   }
+  // Si la page courante n'a plus de contenu (suppressions), recule
+  const totalPages = Math.max(1, Math.ceil(historyEntries.length / HISTORY_PAGE_SIZE));
+  if (historyPage >= totalPages) historyPage = totalPages - 1;
+  if (historyPage < 0) historyPage = 0;
+  renderHistoryPage();
+}
+
+function renderHistoryPage() {
+  if (!historyTbody) return;
   historyTbody.replaceChildren();
-  if (entries.length === 0) {
+  if (historyEntries.length === 0) {
     historyTable.hidden = true;
     historyEmpty.hidden = false;
+    historyPagination.hidden = true;
     return;
   }
   historyEmpty.hidden = true;
   historyTable.hidden = false;
-  entries.forEach((entry) => {
+
+  const start = historyPage * HISTORY_PAGE_SIZE;
+  const slice = historyEntries.slice(start, start + HISTORY_PAGE_SIZE);
+  slice.forEach((entry) => {
     const tr = document.createElement("tr");
     const sportLabel = sportsConfig?.[entry.sportId]?.label || entry.sportId.toUpperCase();
     tr.innerHTML = `
@@ -1104,7 +1126,22 @@ async function renderHistory() {
     `;
     historyTbody.appendChild(tr);
   });
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(historyEntries.length / HISTORY_PAGE_SIZE));
+  historyPagination.hidden = totalPages <= 1;
+  historyPageInfo.textContent = `Page ${historyPage + 1} / ${totalPages} · ${historyEntries.length} break${historyEntries.length > 1 ? "s" : ""}`;
+  historyPrevBtn.disabled = historyPage === 0;
+  historyNextBtn.disabled = historyPage >= totalPages - 1;
 }
+
+historyPrevBtn?.addEventListener("click", () => {
+  if (historyPage > 0) { historyPage -= 1; renderHistoryPage(); }
+});
+historyNextBtn?.addEventListener("click", () => {
+  const totalPages = Math.max(1, Math.ceil(historyEntries.length / HISTORY_PAGE_SIZE));
+  if (historyPage < totalPages - 1) { historyPage += 1; renderHistoryPage(); }
+});
 
 function buildHistoryCsv(entry) {
   const escape = (v) => {

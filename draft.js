@@ -15,6 +15,7 @@ const resetButton = document.querySelector("#reset");
 const undoButton = document.querySelector("#undo");
 const showRecapButton = document.querySelector("#show-recap");
 const hideRecapButton = document.querySelector("#hide-recap");
+const clearParticipantsButton = document.querySelector("#clear-participants");
 
 let state = createDefaultState();
 let isSaving = false;
@@ -263,6 +264,10 @@ function renderToolbar() {
     hideRecapButton.hidden = mode !== "streamer" || !state.recapVisible;
     hideRecapButton.disabled = mode !== "streamer" || isSaving;
   }
+  if (clearParticipantsButton) {
+    clearParticipantsButton.hidden = mode !== "streamer";
+    clearParticipantsButton.disabled = mode !== "streamer" || isSaving;
+  }
 }
 
 function updateRecap() {
@@ -336,6 +341,18 @@ function render(force = false) {
   nbaTeams.forEach((team) => updateTeamTile(team.id));
   renderToolbar();
   updateRecap();
+}
+
+function clearParticipants() {
+  if (mode !== "streamer" || isSaving) return;
+  if (state.currentPick > 0) {
+    if (!window.confirm("La draft est en cours. Vider tous les noms quand meme ?")) return;
+  }
+  state.participants.forEach((player, index) => {
+    player.name = `Spot ${index + 1}`;
+  });
+  render(true);
+  void saveState();
 }
 
 function showRecap() {
@@ -532,6 +549,7 @@ function connectStateStream() {
 undoButton.addEventListener("click", undoPick);
 showRecapButton?.addEventListener("click", showRecap);
 hideRecapButton?.addEventListener("click", hideRecap);
+clearParticipantsButton?.addEventListener("click", clearParticipants);
 resetButton.addEventListener("click", resetDraft);
 
 window.addEventListener("keydown", (event) => {

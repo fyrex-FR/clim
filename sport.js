@@ -10,6 +10,18 @@
   const params = new URLSearchParams(window.location.search);
   const sportId = (params.get("sport") || ROOT_SPORT).toLowerCase().trim() || ROOT_SPORT;
 
+  // Mode OBS : ?obs=1 dans l'URL → fond totalement transparent (pour source navigateur OBS)
+  if (params.get("obs") === "1") {
+    // Ajoute la classe avant que le body soit prêt (pas de FOUC)
+    if (document.body) {
+      document.body.classList.add("obs-mode");
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.body.classList.add("obs-mode");
+      });
+    }
+  }
+
   function getSessionId() {
     const explicit = params.get("session");
     if (explicit) return explicit;
@@ -33,11 +45,22 @@
     const sports = await response.json();
     const sport = sports[sportId];
     if (!sport) throw new Error(`Sport inconnu: ${sportId}`);
-    // Applique la classe "sport-round" sur le body si demande par le sport
     if (sport.logoStyle === "round") {
       document.body.classList.add("sport-round");
     }
-    return { id: sportId, label: sport.label, teams: sport.teams, logoStyle: sport.logoStyle, all: sports };
+    // Applique la palette du sport via CSS variables sur :root
+    if (sport.theme && typeof sport.theme === "object") {
+      const root = document.documentElement;
+      if (sport.theme.accent) root.style.setProperty("--accent", sport.theme.accent);
+      if (sport.theme.accentHi) root.style.setProperty("--accent-hi", sport.theme.accentHi);
+      if (sport.theme.surface0) root.style.setProperty("--surface-0", sport.theme.surface0);
+      if (sport.theme.surface1) root.style.setProperty("--surface-1", sport.theme.surface1);
+      // accent-soft = version transparente du accent
+      if (sport.theme.accent) {
+        root.style.setProperty("--accent-soft", sport.theme.accent + "70"); // ~44% opacity
+      }
+    }
+    return { id: sportId, label: sport.label, teams: sport.teams, logoStyle: sport.logoStyle, theme: sport.theme, all: sports };
   }
 
   window.AppSport = {

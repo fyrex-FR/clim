@@ -48,6 +48,7 @@
       "logo/**",
       "logo-nfl/**",
       "logo-ucc/**",
+      "logo-ucc-carnaval-merlin/**",
       "flags/**",
       "package.json"
     ],

@@ -1,147 +1,1054 @@
 {
   "nba": {
     "label": "NBA",
+    "theme": {
+      "accent": "#fdb927",
+      "accentHi": "#ffd95e",
+      "surface0": "#0f1e3a",
+      "surface1": "#1a2e58"
+    },
     "teams": [
-      { "id": "atlanta-hawks", "label": "Hawks", "logo": "./logo/atlanta_hawks.png" },
-      { "id": "boston-celtics", "label": "Celtics", "logo": "./logo/boston_celtics.png" },
-      { "id": "brooklyn-nets", "label": "Nets", "logo": "./logo/brooklyn_nets.png" },
-      { "id": "charlotte-hornets", "label": "Hornets", "logo": "./logo/charlotte_hornets.png" },
-      { "id": "chicago-bulls", "label": "Bulls", "logo": "./logo/chicago_bulls.png" },
-      { "id": "cleveland-cavaliers", "label": "Cavaliers", "logo": "./logo/cleveland_cavaliers.png" },
-      { "id": "dallas-mavericks", "label": "Mavericks", "logo": "./logo/dallas_mavericks.png" },
-      { "id": "denver-nuggets", "label": "Nuggets", "logo": "./logo/denver_nuggets.png" },
-      { "id": "detroit-pistons", "label": "Pistons", "logo": "./logo/detroit_pistons.png" },
-      { "id": "golden-state-warriors", "label": "Warriors", "logo": "./logo/goldenstate_warriors.png" },
-      { "id": "houston-rockets", "label": "Rockets", "logo": "./logo/houston_rockets.png" },
-      { "id": "indiana-pacers", "label": "Pacers", "logo": "./logo/indiana_pacers.png" },
-      { "id": "los-angeles-clippers", "label": "Clippers", "logo": "./logo/losangeles_clippers.png" },
-      { "id": "los-angeles-lakers", "label": "Lakers", "logo": "./logo/losangeles_lakers.png" },
-      { "id": "memphis-grizzlies", "label": "Grizzlies", "logo": "./logo/memphis_grizzlies.png" },
-      { "id": "miami-heat", "label": "Heat", "logo": "./logo/miami_heat.png" },
-      { "id": "milwaukee-bucks", "label": "Bucks", "logo": "./logo/milwaukee_bucks.png" },
-      { "id": "minnesota-timberwolves", "label": "Timberwolves", "logo": "./logo/minnesota_timberwolves.png" },
-      { "id": "new-orleans-pelicans", "label": "Pelicans", "logo": "./logo/neworleans_pelicans.png" },
-      { "id": "new-york-knicks", "label": "Knicks", "logo": "./logo/newyork_knicks.png" },
-      { "id": "oklahoma-city-thunder", "label": "Thunder", "logo": "./logo/okc_thunder.png" },
-      { "id": "orlando-magic", "label": "Magic", "logo": "./logo/orlando_magic.png" },
-      { "id": "philadelphia-76ers", "label": "76ers", "logo": "./logo/philadelphia_76ers.png" },
-      { "id": "phoenix-suns", "label": "Suns", "logo": "./logo/phoenix_suns.png" },
-      { "id": "portland-trail-blazers", "label": "Trail Blazers", "logo": "./logo/portland_trailblazers.png" },
-      { "id": "sacramento-kings", "label": "Kings", "logo": "./logo/sacramento_kings.png" },
-      { "id": "san-antonio-spurs", "label": "Spurs", "logo": "./logo/sanantonio_spurs.png" },
-      { "id": "toronto-raptors", "label": "Raptors", "logo": "./logo/toronto_raptors.png" },
-      { "id": "utah-jazz", "label": "Jazz", "logo": "./logo/utah_jazz.png" },
-      { "id": "washington-wizards", "label": "Wizards", "logo": "./logo/washington_wizards.png" }
+      {
+        "id": "atlanta-hawks",
+        "label": "Hawks",
+        "logo": "./logo/atlanta_hawks.png"
+      },
+      {
+        "id": "boston-celtics",
+        "label": "Celtics",
+        "logo": "./logo/boston_celtics.png"
+      },
+      {
+        "id": "brooklyn-nets",
+        "label": "Nets",
+        "logo": "./logo/brooklyn_nets.png"
+      },
+      {
+        "id": "charlotte-hornets",
+        "label": "Hornets",
+        "logo": "./logo/charlotte_hornets.png"
+      },
+      {
+        "id": "chicago-bulls",
+        "label": "Bulls",
+        "logo": "./logo/chicago_bulls.png"
+      },
+      {
+        "id": "cleveland-cavaliers",
+        "label": "Cavaliers",
+        "logo": "./logo/cleveland_cavaliers.png"
+      },
+      {
+        "id": "dallas-mavericks",
+        "label": "Mavericks",
+        "logo": "./logo/dallas_mavericks.png"
+      },
+      {
+        "id": "denver-nuggets",
+        "label": "Nuggets",
+        "logo": "./logo/denver_nuggets.png"
+      },
+      {
+        "id": "detroit-pistons",
+        "label": "Pistons",
+        "logo": "./logo/detroit_pistons.png"
+      },
+      {
+        "id": "golden-state-warriors",
+        "label": "Warriors",
+        "logo": "./logo/goldenstate_warriors.png"
+      },
+      {
+        "id": "houston-rockets",
+        "label": "Rockets",
+        "logo": "./logo/houston_rockets.png"
+      },
+      {
+        "id": "indiana-pacers",
+        "label": "Pacers",
+        "logo": "./logo/indiana_pacers.png"
+      },
+      {
+        "id": "los-angeles-clippers",
+        "label": "Clippers",
+        "logo": "./logo/losangeles_clippers.png"
+      },
+      {
+        "id": "los-angeles-lakers",
+        "label": "Lakers",
+        "logo": "./logo/losangeles_lakers.png"
+      },
+      {
+        "id": "memphis-grizzlies",
+        "label": "Grizzlies",
+        "logo": "./logo/memphis_grizzlies.png"
+      },
+      {
+        "id": "miami-heat",
+        "label": "Heat",
+        "logo": "./logo/miami_heat.png"
+      },
+      {
+        "id": "milwaukee-bucks",
+        "label": "Bucks",
+        "logo": "./logo/milwaukee_bucks.png"
+      },
+      {
+        "id": "minnesota-timberwolves",
+        "label": "Timberwolves",
+        "logo": "./logo/minnesota_timberwolves.png"
+      },
+      {
+        "id": "new-orleans-pelicans",
+        "label": "Pelicans",
+        "logo": "./logo/neworleans_pelicans.png"
+      },
+      {
+        "id": "new-york-knicks",
+        "label": "Knicks",
+        "logo": "./logo/newyork_knicks.png"
+      },
+      {
+        "id": "oklahoma-city-thunder",
+        "label": "Thunder",
+        "logo": "./logo/okc_thunder.png"
+      },
+      {
+        "id": "orlando-magic",
+        "label": "Magic",
+        "logo": "./logo/orlando_magic.png"
+      },
+      {
+        "id": "philadelphia-76ers",
+        "label": "76ers",
+        "logo": "./logo/philadelphia_76ers.png"
+      },
+      {
+        "id": "phoenix-suns",
+        "label": "Suns",
+        "logo": "./logo/phoenix_suns.png"
+      },
+      {
+        "id": "portland-trail-blazers",
+        "label": "Trail Blazers",
+        "logo": "./logo/portland_trailblazers.png"
+      },
+      {
+        "id": "sacramento-kings",
+        "label": "Kings",
+        "logo": "./logo/sacramento_kings.png"
+      },
+      {
+        "id": "san-antonio-spurs",
+        "label": "Spurs",
+        "logo": "./logo/sanantonio_spurs.png"
+      },
+      {
+        "id": "toronto-raptors",
+        "label": "Raptors",
+        "logo": "./logo/toronto_raptors.png"
+      },
+      {
+        "id": "utah-jazz",
+        "label": "Jazz",
+        "logo": "./logo/utah_jazz.png"
+      },
+      {
+        "id": "washington-wizards",
+        "label": "Wizards",
+        "logo": "./logo/washington_wizards.png"
+      }
     ]
   },
   "nfl": {
     "label": "NFL",
+    "theme": {
+      "accent": "#013369",
+      "accentHi": "#d50a0a",
+      "surface0": "#0a1a14",
+      "surface1": "#0f2a1f"
+    },
     "teams": [
-      { "id": "arizona-cardinals", "label": "Cardinals", "logo": "./logo-nfl/cardinals.png" },
-      { "id": "atlanta-falcons", "label": "Falcons", "logo": "./logo-nfl/falcons.png" },
-      { "id": "baltimore-ravens", "label": "Ravens", "logo": "./logo-nfl/ravens.png" },
-      { "id": "buffalo-bills", "label": "Bills", "logo": "./logo-nfl/bills.png" },
-      { "id": "carolina-panthers", "label": "Panthers", "logo": "./logo-nfl/panthers.png" },
-      { "id": "chicago-bears", "label": "Bears", "logo": "./logo-nfl/bears.png" },
-      { "id": "cincinnati-bengals", "label": "Bengals", "logo": "./logo-nfl/bengals.png" },
-      { "id": "cleveland-browns", "label": "Browns", "logo": "./logo-nfl/browns.png" },
-      { "id": "dallas-cowboys", "label": "Cowboys", "logo": "./logo-nfl/cowboys.png" },
-      { "id": "denver-broncos", "label": "Broncos", "logo": "./logo-nfl/broncos.png" },
-      { "id": "detroit-lions", "label": "Lions", "logo": "./logo-nfl/lions.png" },
-      { "id": "green-bay-packers", "label": "Packers", "logo": "./logo-nfl/packers.png" },
-      { "id": "houston-texans", "label": "Texans", "logo": "./logo-nfl/texans.png" },
-      { "id": "indianapolis-colts", "label": "Colts", "logo": "./logo-nfl/colts.png" },
-      { "id": "jacksonville-jaguars", "label": "Jaguars", "logo": "./logo-nfl/jaguars.png" },
-      { "id": "kansas-city-chiefs", "label": "Chiefs", "logo": "./logo-nfl/chiefs.png" },
-      { "id": "las-vegas-raiders", "label": "Raiders", "logo": "./logo-nfl/raiders.png" },
-      { "id": "los-angeles-chargers", "label": "Chargers", "logo": "./logo-nfl/chargers.png" },
-      { "id": "los-angeles-rams", "label": "Rams", "logo": "./logo-nfl/rams.png" },
-      { "id": "miami-dolphins", "label": "Dolphins", "logo": "./logo-nfl/dolphins.png" },
-      { "id": "minnesota-vikings", "label": "Vikings", "logo": "./logo-nfl/vikings.png" },
-      { "id": "new-england-patriots", "label": "Patriots", "logo": "./logo-nfl/patriots.png" },
-      { "id": "new-orleans-saints", "label": "Saints", "logo": "./logo-nfl/saints.png" },
-      { "id": "new-york-giants", "label": "Giants", "logo": "./logo-nfl/giants.png" },
-      { "id": "new-york-jets", "label": "Jets", "logo": "./logo-nfl/jets.png" },
-      { "id": "philadelphia-eagles", "label": "Eagles", "logo": "./logo-nfl/eagles.png" },
-      { "id": "pittsburgh-steelers", "label": "Steelers", "logo": "./logo-nfl/steelers.png" },
-      { "id": "san-francisco-49ers", "label": "49ers", "logo": "./logo-nfl/49ers.png" },
-      { "id": "seattle-seahawks", "label": "Seahawks", "logo": "./logo-nfl/seahawks.png" },
-      { "id": "tampa-bay-buccaneers", "label": "Buccaneers", "logo": "./logo-nfl/buccaneers.png" },
-      { "id": "tennessee-titans", "label": "Titans", "logo": "./logo-nfl/titans.png" },
-      { "id": "washington-commanders", "label": "Commanders", "logo": "./logo-nfl/commanders.png" }
+      {
+        "id": "arizona-cardinals",
+        "label": "Cardinals",
+        "logo": "./logo-nfl/cardinals.png"
+      },
+      {
+        "id": "atlanta-falcons",
+        "label": "Falcons",
+        "logo": "./logo-nfl/falcons.png"
+      },
+      {
+        "id": "baltimore-ravens",
+        "label": "Ravens",
+        "logo": "./logo-nfl/ravens.png"
+      },
+      {
+        "id": "buffalo-bills",
+        "label": "Bills",
+        "logo": "./logo-nfl/bills.png"
+      },
+      {
+        "id": "carolina-panthers",
+        "label": "Panthers",
+        "logo": "./logo-nfl/panthers.png"
+      },
+      {
+        "id": "chicago-bears",
+        "label": "Bears",
+        "logo": "./logo-nfl/bears.png"
+      },
+      {
+        "id": "cincinnati-bengals",
+        "label": "Bengals",
+        "logo": "./logo-nfl/bengals.png"
+      },
+      {
+        "id": "cleveland-browns",
+        "label": "Browns",
+        "logo": "./logo-nfl/browns.png"
+      },
+      {
+        "id": "dallas-cowboys",
+        "label": "Cowboys",
+        "logo": "./logo-nfl/cowboys.png"
+      },
+      {
+        "id": "denver-broncos",
+        "label": "Broncos",
+        "logo": "./logo-nfl/broncos.png"
+      },
+      {
+        "id": "detroit-lions",
+        "label": "Lions",
+        "logo": "./logo-nfl/lions.png"
+      },
+      {
+        "id": "green-bay-packers",
+        "label": "Packers",
+        "logo": "./logo-nfl/packers.png"
+      },
+      {
+        "id": "houston-texans",
+        "label": "Texans",
+        "logo": "./logo-nfl/texans.png"
+      },
+      {
+        "id": "indianapolis-colts",
+        "label": "Colts",
+        "logo": "./logo-nfl/colts.png"
+      },
+      {
+        "id": "jacksonville-jaguars",
+        "label": "Jaguars",
+        "logo": "./logo-nfl/jaguars.png"
+      },
+      {
+        "id": "kansas-city-chiefs",
+        "label": "Chiefs",
+        "logo": "./logo-nfl/chiefs.png"
+      },
+      {
+        "id": "las-vegas-raiders",
+        "label": "Raiders",
+        "logo": "./logo-nfl/raiders.png"
+      },
+      {
+        "id": "los-angeles-chargers",
+        "label": "Chargers",
+        "logo": "./logo-nfl/chargers.png"
+      },
+      {
+        "id": "los-angeles-rams",
+        "label": "Rams",
+        "logo": "./logo-nfl/rams.png"
+      },
+      {
+        "id": "miami-dolphins",
+        "label": "Dolphins",
+        "logo": "./logo-nfl/dolphins.png"
+      },
+      {
+        "id": "minnesota-vikings",
+        "label": "Vikings",
+        "logo": "./logo-nfl/vikings.png"
+      },
+      {
+        "id": "new-england-patriots",
+        "label": "Patriots",
+        "logo": "./logo-nfl/patriots.png"
+      },
+      {
+        "id": "new-orleans-saints",
+        "label": "Saints",
+        "logo": "./logo-nfl/saints.png"
+      },
+      {
+        "id": "new-york-giants",
+        "label": "Giants",
+        "logo": "./logo-nfl/giants.png"
+      },
+      {
+        "id": "new-york-jets",
+        "label": "Jets",
+        "logo": "./logo-nfl/jets.png"
+      },
+      {
+        "id": "philadelphia-eagles",
+        "label": "Eagles",
+        "logo": "./logo-nfl/eagles.png"
+      },
+      {
+        "id": "pittsburgh-steelers",
+        "label": "Steelers",
+        "logo": "./logo-nfl/steelers.png"
+      },
+      {
+        "id": "san-francisco-49ers",
+        "label": "49ers",
+        "logo": "./logo-nfl/49ers.png"
+      },
+      {
+        "id": "seattle-seahawks",
+        "label": "Seahawks",
+        "logo": "./logo-nfl/seahawks.png"
+      },
+      {
+        "id": "tampa-bay-buccaneers",
+        "label": "Buccaneers",
+        "logo": "./logo-nfl/buccaneers.png"
+      },
+      {
+        "id": "tennessee-titans",
+        "label": "Titans",
+        "logo": "./logo-nfl/titans.png"
+      },
+      {
+        "id": "washington-commanders",
+        "label": "Commanders",
+        "logo": "./logo-nfl/commanders.png"
+      }
     ]
   },
   "ucc": {
     "label": "UCC Chrome",
+    "theme": {
+      "accent": "#1c4ba6",
+      "accentHi": "#d0d6e0",
+      "surface0": "#0a1426",
+      "surface1": "#142042"
+    },
     "teams": [
-      { "id": "ac-milan", "label": "AC Milan", "logo": "./logo-ucc/ac-milan.png" },
-      { "id": "afc-ajax", "label": "Ajax", "logo": "./logo-ucc/afc-ajax.png" },
-      { "id": "arsenal-fc", "label": "Arsenal", "logo": "./logo-ucc/arsenal-fc.png" },
-      { "id": "as-monaco", "label": "Monaco", "logo": "./logo-ucc/as-monaco.png" },
-      { "id": "aston-villa", "label": "Aston Villa", "logo": "./logo-ucc/aston-villa.png" },
-      { "id": "athletic-bilbao", "label": "Athletic Bilbao", "logo": "./logo-ucc/athletic-club-bilbao.png" },
-      { "id": "atletico-madrid", "label": "Atlético Madrid", "logo": "./logo-ucc/atletico-de-madrid.png" },
-      { "id": "bayer-leverkusen", "label": "Leverkusen", "logo": "./logo-ucc/bayer-04-leverkusen.png" },
-      { "id": "borussia-dortmund", "label": "Dortmund", "logo": "./logo-ucc/borussia-dortmund.png" },
-      { "id": "celtic-fc", "label": "Celtic", "logo": "./logo-ucc/celtic-fc.png" },
-      { "id": "chelsea-fc", "label": "Chelsea", "logo": "./logo-ucc/chelsea-fc.png" },
-      { "id": "eintracht-frankfurt", "label": "Frankfurt", "logo": "./logo-ucc/eintracht-frankfurt.png" },
-      { "id": "fc-barcelona", "label": "Barcelona", "logo": "./logo-ucc/fc-barcelona.png" },
-      { "id": "fc-bayern-munchen", "label": "Bayern Munich", "logo": "./logo-ucc/fc-bayern-munchen.png" },
-      { "id": "fc-porto", "label": "Porto", "logo": "./logo-ucc/f-c-porto.png" },
-      { "id": "inter-milan", "label": "Inter Milan", "logo": "./logo-ucc/f-c-internazionale.png" },
-      { "id": "juventus", "label": "Juventus", "logo": "./logo-ucc/juventus.png" },
-      { "id": "krc-genk", "label": "Genk", "logo": "./logo-ucc/krc-genk.png" },
-      { "id": "liverpool-fc", "label": "Liverpool", "logo": "./logo-ucc/liverpool-fc.png" },
-      { "id": "manchester-city", "label": "Man City", "logo": "./logo-ucc/manchester-city-fc.png" },
-      { "id": "manchester-united", "label": "Man United", "logo": "./logo-ucc/manchester-united.png" },
-      { "id": "newcastle-united", "label": "Newcastle", "logo": "./logo-ucc/newcastle-united.png" },
-      { "id": "nottingham-forest", "label": "Nottingham Forest", "logo": "./logo-ucc/nottingham-forest.png" },
-      { "id": "paris-saint-germain", "label": "PSG", "logo": "./logo-ucc/paris-saint-germain.png" },
-      { "id": "psv-eindhoven", "label": "PSV", "logo": "./logo-ucc/psv-eindhoven.png" },
-      { "id": "rangers-fc", "label": "Rangers", "logo": "./logo-ucc/rangers-fc.png" },
-      { "id": "rc-strasbourg", "label": "Strasbourg", "logo": "./logo-ucc/rca-strasbourg.png" },
-      { "id": "real-betis", "label": "Real Betis", "logo": "./logo-ucc/real-betis.png" },
-      { "id": "real-madrid", "label": "Real Madrid", "logo": "./logo-ucc/real-madrid-cf.png" },
-      { "id": "sl-benfica", "label": "Benfica", "logo": "./logo-ucc/sl-benfica.png" },
-      { "id": "sporting-cp", "label": "Sporting CP", "logo": "./logo-ucc/sporting-cp.png" },
-      { "id": "ssc-napoli", "label": "Napoli", "logo": "./logo-ucc/ssc-napoli.png" },
-      { "id": "tottenham-hotspur", "label": "Tottenham", "logo": "./logo-ucc/tottenham-hotspur.png" }
+      {
+        "id": "ac-milan",
+        "label": "AC Milan",
+        "logo": "./logo-ucc/ac-milan.png"
+      },
+      {
+        "id": "afc-ajax",
+        "label": "Ajax",
+        "logo": "./logo-ucc/afc-ajax.png"
+      },
+      {
+        "id": "arsenal-fc",
+        "label": "Arsenal",
+        "logo": "./logo-ucc/arsenal-fc.png"
+      },
+      {
+        "id": "as-monaco",
+        "label": "Monaco",
+        "logo": "./logo-ucc/as-monaco.png"
+      },
+      {
+        "id": "aston-villa",
+        "label": "Aston Villa",
+        "logo": "./logo-ucc/aston-villa.png"
+      },
+      {
+        "id": "athletic-bilbao",
+        "label": "Athletic Bilbao",
+        "logo": "./logo-ucc/athletic-club-bilbao.png"
+      },
+      {
+        "id": "atletico-madrid",
+        "label": "Atlético Madrid",
+        "logo": "./logo-ucc/atletico-de-madrid.png"
+      },
+      {
+        "id": "bayer-leverkusen",
+        "label": "Leverkusen",
+        "logo": "./logo-ucc/bayer-04-leverkusen.png"
+      },
+      {
+        "id": "borussia-dortmund",
+        "label": "Dortmund",
+        "logo": "./logo-ucc/borussia-dortmund.png"
+      },
+      {
+        "id": "celtic-fc",
+        "label": "Celtic",
+        "logo": "./logo-ucc/celtic-fc.png"
+      },
+      {
+        "id": "chelsea-fc",
+        "label": "Chelsea",
+        "logo": "./logo-ucc/chelsea-fc.png"
+      },
+      {
+        "id": "eintracht-frankfurt",
+        "label": "Frankfurt",
+        "logo": "./logo-ucc/eintracht-frankfurt.png"
+      },
+      {
+        "id": "fc-barcelona",
+        "label": "Barcelona",
+        "logo": "./logo-ucc/fc-barcelona.png"
+      },
+      {
+        "id": "fc-bayern-munchen",
+        "label": "Bayern Munich",
+        "logo": "./logo-ucc/fc-bayern-munchen.png"
+      },
+      {
+        "id": "fc-porto",
+        "label": "Porto",
+        "logo": "./logo-ucc/f-c-porto.png"
+      },
+      {
+        "id": "inter-milan",
+        "label": "Inter Milan",
+        "logo": "./logo-ucc/f-c-internazionale.png"
+      },
+      {
+        "id": "juventus",
+        "label": "Juventus",
+        "logo": "./logo-ucc/juventus.png"
+      },
+      {
+        "id": "krc-genk",
+        "label": "Genk",
+        "logo": "./logo-ucc/krc-genk.png"
+      },
+      {
+        "id": "liverpool-fc",
+        "label": "Liverpool",
+        "logo": "./logo-ucc/liverpool-fc.png"
+      },
+      {
+        "id": "manchester-city",
+        "label": "Man City",
+        "logo": "./logo-ucc/manchester-city-fc.png"
+      },
+      {
+        "id": "manchester-united",
+        "label": "Man United",
+        "logo": "./logo-ucc/manchester-united.png"
+      },
+      {
+        "id": "newcastle-united",
+        "label": "Newcastle",
+        "logo": "./logo-ucc/newcastle-united.png"
+      },
+      {
+        "id": "nottingham-forest",
+        "label": "Nottingham Forest",
+        "logo": "./logo-ucc/nottingham-forest.png"
+      },
+      {
+        "id": "paris-saint-germain",
+        "label": "PSG",
+        "logo": "./logo-ucc/paris-saint-germain.png"
+      },
+      {
+        "id": "psv-eindhoven",
+        "label": "PSV",
+        "logo": "./logo-ucc/psv-eindhoven.png"
+      },
+      {
+        "id": "rangers-fc",
+        "label": "Rangers",
+        "logo": "./logo-ucc/rangers-fc.png"
+      },
+      {
+        "id": "rc-strasbourg",
+        "label": "Strasbourg",
+        "logo": "./logo-ucc/rca-strasbourg.png"
+      },
+      {
+        "id": "real-betis",
+        "label": "Real Betis",
+        "logo": "./logo-ucc/real-betis.png"
+      },
+      {
+        "id": "real-madrid",
+        "label": "Real Madrid",
+        "logo": "./logo-ucc/real-madrid-cf.png"
+      },
+      {
+        "id": "sl-benfica",
+        "label": "Benfica",
+        "logo": "./logo-ucc/sl-benfica.png"
+      },
+      {
+        "id": "sporting-cp",
+        "label": "Sporting CP",
+        "logo": "./logo-ucc/sporting-cp.png"
+      },
+      {
+        "id": "ssc-napoli",
+        "label": "Napoli",
+        "logo": "./logo-ucc/ssc-napoli.png"
+      },
+      {
+        "id": "tottenham-hotspur",
+        "label": "Tottenham",
+        "logo": "./logo-ucc/tottenham-hotspur.png"
+      }
     ]
   },
   "donruss-wc": {
     "label": "Donruss World Cup Panini",
     "logoStyle": "round",
+    "theme": {
+      "accent": "#c9082a",
+      "accentHi": "#f8e8a0",
+      "surface0": "#0d1838",
+      "surface1": "#1a2654"
+    },
     "teams": [
-      { "id": "germany", "label": "Germany", "logo": "./flags/de.svg" },
-      { "id": "argentina", "label": "Argentina", "logo": "./flags/ar.svg" },
-      { "id": "brazil", "label": "Brazil", "logo": "./flags/br.svg" },
-      { "id": "france", "label": "France", "logo": "./flags/fr.svg" },
-      { "id": "england", "label": "England", "logo": "./flags/gb-eng.svg" },
-      { "id": "spain", "label": "Spain", "logo": "./flags/es.svg" },
-      { "id": "italy", "label": "Italy", "logo": "./flags/it.svg" },
-      { "id": "portugal", "label": "Portugal", "logo": "./flags/pt.svg" },
-      { "id": "united-states", "label": "United States", "logo": "./flags/us.svg" },
-      { "id": "mexico", "label": "Mexico", "logo": "./flags/mx.svg" },
-      { "id": "sweden", "label": "Sweden", "logo": "./flags/se.svg" },
-      { "id": "norway", "label": "Norway", "logo": "./flags/no.svg" },
-      { "id": "croatia", "label": "Croatia", "logo": "./flags/hr.svg" },
-      { "id": "poland", "label": "Poland", "logo": "./flags/pl.svg" },
-      { "id": "uruguay", "label": "Uruguay", "logo": "./flags/uy.svg" },
-      { "id": "morocco", "label": "Morocco", "logo": "./flags/ma.svg" },
-      { "id": "colombia", "label": "Colombia", "logo": "./flags/co.svg" },
-      { "id": "serbia", "label": "Serbia", "logo": "./flags/rs.svg" },
-      { "id": "switzerland", "label": "Switzerland", "logo": "./flags/ch.svg" },
-      { "id": "senegal", "label": "Senegal", "logo": "./flags/sn.svg" },
-      { "id": "nigeria", "label": "Nigeria", "logo": "./flags/ng.svg" },
-      { "id": "northern-ireland", "label": "Northern Ireland", "logo": "./flags/gb-nir.svg" },
-      { "id": "ghana", "label": "Ghana", "logo": "./flags/gh.svg" },
-      { "id": "scotland", "label": "Scotland", "logo": "./flags/gb-sct.svg" },
-      { "id": "republic-of-ireland", "label": "Republic of Ireland", "logo": "./flags/ie.svg" },
-      { "id": "cymru", "label": "Cymru", "logo": "./flags/gb-wls.svg" },
-      { "id": "korea-republic", "label": "Korea Republic", "logo": "./flags/kr.svg" },
-      { "id": "paraguay", "label": "Paraguay", "logo": "./flags/py.svg" },
-      { "id": "honduras", "label": "Honduras", "logo": "./flags/hn.svg" }
+      {
+        "id": "germany",
+        "label": "Germany",
+        "logo": "./flags/de.svg"
+      },
+      {
+        "id": "argentina",
+        "label": "Argentina",
+        "logo": "./flags/ar.svg"
+      },
+      {
+        "id": "brazil",
+        "label": "Brazil",
+        "logo": "./flags/br.svg"
+      },
+      {
+        "id": "france",
+        "label": "France",
+        "logo": "./flags/fr.svg"
+      },
+      {
+        "id": "england",
+        "label": "England",
+        "logo": "./flags/gb-eng.svg"
+      },
+      {
+        "id": "spain",
+        "label": "Spain",
+        "logo": "./flags/es.svg"
+      },
+      {
+        "id": "italy",
+        "label": "Italy",
+        "logo": "./flags/it.svg"
+      },
+      {
+        "id": "portugal",
+        "label": "Portugal",
+        "logo": "./flags/pt.svg"
+      },
+      {
+        "id": "united-states",
+        "label": "United States",
+        "logo": "./flags/us.svg"
+      },
+      {
+        "id": "mexico",
+        "label": "Mexico",
+        "logo": "./flags/mx.svg"
+      },
+      {
+        "id": "sweden",
+        "label": "Sweden",
+        "logo": "./flags/se.svg"
+      },
+      {
+        "id": "norway",
+        "label": "Norway",
+        "logo": "./flags/no.svg"
+      },
+      {
+        "id": "croatia",
+        "label": "Croatia",
+        "logo": "./flags/hr.svg"
+      },
+      {
+        "id": "poland",
+        "label": "Poland",
+        "logo": "./flags/pl.svg"
+      },
+      {
+        "id": "uruguay",
+        "label": "Uruguay",
+        "logo": "./flags/uy.svg"
+      },
+      {
+        "id": "morocco",
+        "label": "Morocco",
+        "logo": "./flags/ma.svg"
+      },
+      {
+        "id": "colombia",
+        "label": "Colombia",
+        "logo": "./flags/co.svg"
+      },
+      {
+        "id": "serbia",
+        "label": "Serbia",
+        "logo": "./flags/rs.svg"
+      },
+      {
+        "id": "switzerland",
+        "label": "Switzerland",
+        "logo": "./flags/ch.svg"
+      },
+      {
+        "id": "senegal",
+        "label": "Senegal",
+        "logo": "./flags/sn.svg"
+      },
+      {
+        "id": "nigeria",
+        "label": "Nigeria",
+        "logo": "./flags/ng.svg"
+      },
+      {
+        "id": "northern-ireland",
+        "label": "Northern Ireland",
+        "logo": "./flags/gb-nir.svg"
+      },
+      {
+        "id": "ghana",
+        "label": "Ghana",
+        "logo": "./flags/gh.svg"
+      },
+      {
+        "id": "scotland",
+        "label": "Scotland",
+        "logo": "./flags/gb-sct.svg"
+      },
+      {
+        "id": "republic-of-ireland",
+        "label": "Republic of Ireland",
+        "logo": "./flags/ie.svg"
+      },
+      {
+        "id": "cymru",
+        "label": "Cymru",
+        "logo": "./flags/gb-wls.svg"
+      },
+      {
+        "id": "korea-republic",
+        "label": "Korea Republic",
+        "logo": "./flags/kr.svg"
+      },
+      {
+        "id": "paraguay",
+        "label": "Paraguay",
+        "logo": "./flags/py.svg"
+      },
+      {
+        "id": "honduras",
+        "label": "Honduras",
+        "logo": "./flags/hn.svg"
+      }
+    ]
+  },
+  "ucc-merlin": {
+    "label": "UCC + Merlin + Carnaval",
+    "theme": {
+      "accent": "#ff3c7e",
+      "accentHi": "#ffd84d",
+      "surface0": "#1a0e2e",
+      "surface1": "#2d1849"
+    },
+    "teams": [
+      {
+        "id": "fc-barcelona",
+        "label": "Barcelona",
+        "logo": "./logo-ucc-carnaval-merlin/fc-barcelona.png"
+      },
+      {
+        "id": "real-madrid",
+        "label": "Real Madrid",
+        "logo": "./logo-ucc-carnaval-merlin/real-madrid-cf.png"
+      },
+      {
+        "id": "paris-saint-germain",
+        "label": "PSG",
+        "logo": "./logo-ucc-carnaval-merlin/paris-saint-germain.png"
+      },
+      {
+        "id": "manchester-city",
+        "label": "Man City",
+        "logo": "./logo-ucc-carnaval-merlin/manchester-city-fc.png"
+      },
+      {
+        "id": "fc-bayern-munchen",
+        "label": "Bayern Munich",
+        "logo": "./logo-ucc-carnaval-merlin/fc-bayern-munchen.png"
+      },
+      {
+        "id": "liverpool-fc",
+        "label": "Liverpool",
+        "logo": "./logo-ucc-carnaval-merlin/liverpool-fc.png"
+      },
+      {
+        "id": "arsenal-fc",
+        "label": "Arsenal",
+        "logo": "./logo-ucc-carnaval-merlin/arsenal-fc.png"
+      },
+      {
+        "id": "chelsea-fc",
+        "label": "Chelsea",
+        "logo": "./logo-ucc-carnaval-merlin/chelsea-fc.png"
+      },
+      {
+        "id": "inter-milan",
+        "label": "Inter Milan",
+        "logo": "./logo-ucc-carnaval-merlin/f-c-internazionale.png"
+      },
+      {
+        "id": "tottenham-hotspur",
+        "label": "Tottenham",
+        "logo": "./logo-ucc-carnaval-merlin/tottenham-hotspur.png"
+      },
+      {
+        "id": "manchester-united",
+        "label": "Man United",
+        "logo": "./logo-ucc-carnaval-merlin/manchester-united.png"
+      },
+      {
+        "id": "juventus",
+        "label": "Juventus",
+        "logo": "./logo-ucc-carnaval-merlin/juventus.png"
+      },
+      {
+        "id": "ac-milan",
+        "label": "AC Milan",
+        "logo": "./logo-ucc-carnaval-merlin/ac-milan.png"
+      },
+      {
+        "id": "borussia-dortmund",
+        "label": "Dortmund",
+        "logo": "./logo-ucc-carnaval-merlin/borussia-dortmund.png"
+      },
+      {
+        "id": "bayer-leverkusen",
+        "label": "Leverkusen",
+        "logo": "./logo-ucc-carnaval-merlin/bayer-04-leverkusen.png"
+      },
+      {
+        "id": "atletico-madrid",
+        "label": "Atlético Madrid",
+        "logo": "./logo-ucc-carnaval-merlin/atletico-de-madrid.png"
+      },
+      {
+        "id": "celtic-fc",
+        "label": "Celtic",
+        "logo": "./logo-ucc-carnaval-merlin/celtic-fc.png"
+      },
+      {
+        "id": "as-monaco",
+        "label": "Monaco",
+        "logo": "./logo-ucc-carnaval-merlin/as-monaco.png"
+      },
+      {
+        "id": "aston-villa",
+        "label": "Aston Villa",
+        "logo": "./logo-ucc-carnaval-merlin/aston-villa.png"
+      },
+      {
+        "id": "sporting-cp",
+        "label": "Sporting CP",
+        "logo": "./logo-ucc-carnaval-merlin/sporting-cp.png"
+      },
+      {
+        "id": "newcastle-united",
+        "label": "Newcastle",
+        "logo": "./logo-ucc-carnaval-merlin/newcastle-united.png"
+      },
+      {
+        "id": "sl-benfica",
+        "label": "Benfica",
+        "logo": "./logo-ucc-carnaval-merlin/sl-benfica.png"
+      },
+      {
+        "id": "rb-leipzig",
+        "label": "RB Leipzig",
+        "logo": "./logo-ucc-carnaval-merlin/rb-leipzig.png"
+      },
+      {
+        "id": "athletic-bilbao",
+        "label": "Athletic Bilbao",
+        "logo": "./logo-ucc-carnaval-merlin/athletic-club-bilbao.png"
+      },
+      {
+        "id": "real-betis",
+        "label": "Real Betis",
+        "logo": "./logo-ucc-carnaval-merlin/real-betis.png"
+      },
+      {
+        "id": "ssc-napoli",
+        "label": "Napoli",
+        "logo": "./logo-ucc-carnaval-merlin/ssc-napoli.png"
+      },
+      {
+        "id": "psv-eindhoven",
+        "label": "PSV",
+        "logo": "./logo-ucc-carnaval-merlin/psv-eindhoven.png"
+      },
+      {
+        "id": "fc-porto",
+        "label": "Porto",
+        "logo": "./logo-ucc-carnaval-merlin/f-c-porto.png"
+      },
+      {
+        "id": "afc-ajax",
+        "label": "Ajax",
+        "logo": "./logo-ucc-carnaval-merlin/afc-ajax.png"
+      },
+      {
+        "id": "rangers-fc",
+        "label": "Rangers",
+        "logo": "./logo-ucc-carnaval-merlin/rangers-fc.png"
+      },
+      {
+        "id": "fc-salzburg",
+        "label": "FC Salzburg",
+        "logo": "./logo-ucc-carnaval-merlin/fc-salzburg.png"
+      },
+      {
+        "id": "krc-genk",
+        "label": "Genk",
+        "logo": "./logo-ucc-carnaval-merlin/krc-genk.png"
+      },
+      {
+        "id": "nottingham-forest",
+        "label": "Nottingham Forest",
+        "logo": "./logo-ucc-carnaval-merlin/nottingham-forest.png"
+      },
+      {
+        "id": "rc-strasbourg",
+        "label": "Strasbourg",
+        "logo": "./logo-ucc-carnaval-merlin/rca-strasbourg.png"
+      },
+      {
+        "id": "olympiacos",
+        "label": "Olympiacos",
+        "logo": "./logo-ucc-carnaval-merlin/olympiacos.png"
+      },
+      {
+        "id": "bologna",
+        "label": "Bologna",
+        "logo": "./logo-ucc-carnaval-merlin/bologna-fc.png"
+      },
+      {
+        "id": "crvena-zvezda",
+        "label": "Crvena Zvezda",
+        "logo": "./logo-ucc-carnaval-merlin/fk-crvena-zvezda.png"
+      },
+      {
+        "id": "eintracht-frankfurt",
+        "label": "Frankfurt",
+        "logo": "./logo-ucc-carnaval-merlin/eintracht-frankfurt.png"
+      },
+      {
+        "id": "losc-lille",
+        "label": "LOSC Lille",
+        "logo": "./logo-ucc-carnaval-merlin/losc-lille.png"
+      },
+      {
+        "id": "rsc-anderlecht",
+        "label": "RSC Anderlecht",
+        "logo": "./logo-ucc-carnaval-merlin/rsc-anderlecht.png"
+      },
+      {
+        "id": "as-roma",
+        "label": "AS Roma",
+        "logo": "./logo-ucc-carnaval-merlin/as-roma.png"
+      }
+    ]
+  },
+  "merlin": {
+    "label": "Merlin",
+    "theme": {
+      "accent": "#7b3ff2",
+      "accentHi": "#c9a7ff",
+      "surface0": "#0e0a1f",
+      "surface1": "#1f1538"
+    },
+    "teams": [
+      {
+        "id": "fc-barcelona",
+        "label": "Barcelona",
+        "logo": "./logo-ucc-carnaval-merlin/fc-barcelona.png"
+      },
+      {
+        "id": "real-madrid",
+        "label": "Real Madrid",
+        "logo": "./logo-ucc-carnaval-merlin/real-madrid-cf.png"
+      },
+      {
+        "id": "manchester-united",
+        "label": "Man United",
+        "logo": "./logo-ucc-carnaval-merlin/manchester-united.png"
+      },
+      {
+        "id": "manchester-city",
+        "label": "Man City",
+        "logo": "./logo-ucc-carnaval-merlin/manchester-city-fc.png"
+      },
+      {
+        "id": "ac-milan",
+        "label": "AC Milan",
+        "logo": "./logo-ucc-carnaval-merlin/ac-milan.png"
+      },
+      {
+        "id": "paris-saint-germain",
+        "label": "PSG",
+        "logo": "./logo-ucc-carnaval-merlin/paris-saint-germain.png"
+      },
+      {
+        "id": "arsenal-fc",
+        "label": "Arsenal",
+        "logo": "./logo-ucc-carnaval-merlin/arsenal-fc.png"
+      },
+      {
+        "id": "tottenham-hotspur",
+        "label": "Tottenham",
+        "logo": "./logo-ucc-carnaval-merlin/tottenham-hotspur.png"
+      },
+      {
+        "id": "fc-bayern-munchen",
+        "label": "Bayern Munich",
+        "logo": "./logo-ucc-carnaval-merlin/fc-bayern-munchen.png"
+      },
+      {
+        "id": "chelsea-fc",
+        "label": "Chelsea",
+        "logo": "./logo-ucc-carnaval-merlin/chelsea-fc.png"
+      },
+      {
+        "id": "juventus",
+        "label": "Juventus",
+        "logo": "./logo-ucc-carnaval-merlin/juventus.png"
+      },
+      {
+        "id": "liverpool-fc",
+        "label": "Liverpool",
+        "logo": "./logo-ucc-carnaval-merlin/liverpool-fc.png"
+      },
+      {
+        "id": "rb-leipzig",
+        "label": "RB Leipzig",
+        "logo": "./logo-ucc-carnaval-merlin/rb-leipzig.png"
+      },
+      {
+        "id": "bayer-leverkusen",
+        "label": "Leverkusen",
+        "logo": "./logo-ucc-carnaval-merlin/bayer-04-leverkusen.png"
+      },
+      {
+        "id": "inter-milan",
+        "label": "Inter Milan",
+        "logo": "./logo-ucc-carnaval-merlin/f-c-internazionale.png"
+      },
+      {
+        "id": "borussia-dortmund",
+        "label": "Dortmund",
+        "logo": "./logo-ucc-carnaval-merlin/borussia-dortmund.png"
+      },
+      {
+        "id": "sporting-cp",
+        "label": "Sporting CP",
+        "logo": "./logo-ucc-carnaval-merlin/sporting-cp.png"
+      },
+      {
+        "id": "fc-salzburg",
+        "label": "FC Salzburg",
+        "logo": "./logo-ucc-carnaval-merlin/fc-salzburg.png"
+      },
+      {
+        "id": "as-monaco",
+        "label": "Monaco",
+        "logo": "./logo-ucc-carnaval-merlin/as-monaco.png"
+      },
+      {
+        "id": "celtic-fc",
+        "label": "Celtic",
+        "logo": "./logo-ucc-carnaval-merlin/celtic-fc.png"
+      },
+      {
+        "id": "athletic-bilbao",
+        "label": "Athletic Bilbao",
+        "logo": "./logo-ucc-carnaval-merlin/athletic-club-bilbao.png"
+      },
+      {
+        "id": "sl-benfica",
+        "label": "Benfica",
+        "logo": "./logo-ucc-carnaval-merlin/sl-benfica.png"
+      },
+      {
+        "id": "aston-villa",
+        "label": "Aston Villa",
+        "logo": "./logo-ucc-carnaval-merlin/aston-villa.png"
+      },
+      {
+        "id": "olympiacos",
+        "label": "Olympiacos",
+        "logo": "./logo-ucc-carnaval-merlin/olympiacos.png"
+      },
+      {
+        "id": "atletico-madrid",
+        "label": "Atlético Madrid",
+        "logo": "./logo-ucc-carnaval-merlin/atletico-de-madrid.png"
+      },
+      {
+        "id": "bologna",
+        "label": "Bologna",
+        "logo": "./logo-ucc-carnaval-merlin/bologna-fc.png"
+      },
+      {
+        "id": "crvena-zvezda",
+        "label": "Crvena Zvezda",
+        "logo": "./logo-ucc-carnaval-merlin/fk-crvena-zvezda.png"
+      },
+      {
+        "id": "psv-eindhoven",
+        "label": "PSV",
+        "logo": "./logo-ucc-carnaval-merlin/psv-eindhoven.png"
+      },
+      {
+        "id": "losc-lille",
+        "label": "LOSC Lille",
+        "logo": "./logo-ucc-carnaval-merlin/losc-lille.png"
+      },
+      {
+        "id": "rsc-anderlecht",
+        "label": "RSC Anderlecht",
+        "logo": "./logo-ucc-carnaval-merlin/rsc-anderlecht.png"
+      },
+      {
+        "id": "rangers-fc",
+        "label": "Rangers",
+        "logo": "./logo-ucc-carnaval-merlin/rangers-fc.png"
+      },
+      {
+        "id": "as-roma",
+        "label": "AS Roma",
+        "logo": "./logo-ucc-carnaval-merlin/as-roma.png"
+      }
     ]
   }
 }
